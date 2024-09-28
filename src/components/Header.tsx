@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 const Header = () => {
     return (
         <header>
-            <div className="max-w-6xl mx-auto">
-                <div className="grid grid-cols-3 gap-8 items-center">
+            <div className="container">
+                <div className="grid grid-cols-3 gap-8">
                     <div>
                         <img src="/logo.svg" alt="NhShop" />
                     </div>

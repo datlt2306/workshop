@@ -6,6 +6,7 @@ import SignupPage from "./pages/(auth)/signup/page";
 import LayoutAdmin from "./pages/(admin)/layout";
 import DashboardPage from "./pages/(admin)/dashboard/page";
 import NotFoundPage from "./pages/(website)/404/page";
+import AdminProductPage from "./pages/(admin)/products/page";
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
                 <Route path="admin" element={<LayoutAdmin />}>
                     <Route index element={<Navigate to="dashboard" />} />
                     <Route path="dashboard" element={<DashboardPage />} />
+                    <Route path="products" element={<AdminProductPage />} />
                 </Route>
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>

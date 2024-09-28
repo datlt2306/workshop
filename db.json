@@ -1,0 +1,84 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "Product 1",
+            "price": 100,
+            "in_stock": true,
+            "description": "Description for Product 1",
+            "image": "https://picsum.photos/id/1/200/300"
+        },
+        {
+            "id": 2,
+            "name": "Product 2",
+            "price": 200,
+            "in_stock": false,
+            "description": "Description for Product 2",
+            "image": "https://picsum.photos/id/2/200/300"
+        },
+        {
+            "id": 3,
+            "name": "Product 3",
+            "price": 150,
+            "in_stock": true,
+            "description": "Description for Product 3",
+            "image": "https://picsum.photos/id/3/200/300"
+        },
+        {
+            "id": 4,
+            "name": "Product 4",
+            "price": 250,
+            "in_stock": false,
+            "description": "Description for Product 4",
+            "image": "https://picsum.photos/id/4/200/300"
+        },
+        {
+            "id": 5,
+            "name": "Product 5",
+            "price": 300,
+            "in_stock": true,
+            "description": "Description for Product 5",
+            "image": "https://picsum.photos/id/5/200/300"
+        },
+        {
+            "id": 6,
+            "name": "Product 6",
+            "price": 350,
+            "in_stock": false,
+            "description": "Description for Product 6",
+            "image": "https://picsum.photos/id/6/200/300"
+        },
+        {
+            "id": 7,
+            "name": "Product 7",
+            "price": 400,
+            "in_stock": true,
+            "description": "Description for Product 7",
+            "image": "https://picsum.photos/id/7/200/300"
+        },
+        {
+            "id": 8,
+            "name": "Product 8",
+            "price": 450,
+            "in_stock": false,
+            "description": "Description for Product 8",
+            "image": "https://picsum.photos/id/8/200/300"
+        },
+        {
+            "id": 9,
+            "name": "Product 9",
+            "price": 500,
+            "in_stock": true,
+            "description": "Description for Product 9",
+            "image": "https://picsum.photos/id/9/200/300"
+        },
+        {
+            "id": 10,
+            "name": "Product 10",
+            "price": 550,
+            "in_stock": false,
+            "description": "Description for Product 10",
+            "image": "https://picsum.photos/id/10/200/300"
+        }
+    ]
+}
