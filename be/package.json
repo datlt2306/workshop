@@ -1,0 +1,19 @@
+{
+    "name": "be",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "dev": "vite"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+        "vite": "^4.5.5",
+        "vite-plugin-node": "^3.1.0"
+    },
+    "dependencies": {
+        "express": "^4.21.0"
+    }
+}
