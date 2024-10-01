@@ -15,7 +15,7 @@ const AdminProductsPage = () => {
     const { data, isLoading } = useQuery({
         queryKey: ["products"],
         queryFn: async () => {
-            const response = await fetch(`http://localhost:3000/products`);
+            const response = await fetch(`http://localhost:3000/api/products`);
             const data = await response.json();
             return data.map((product: any) => ({
                 key: product.key,
