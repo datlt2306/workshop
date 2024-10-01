@@ -9,10 +9,11 @@ app.get("/", (req, res) => {
 export const viteNodeApp = app;
 
 /**
- * B1: npm i vite vite-plugin-node -D
- * B2: npm i express
- * B3: Tạo và truy cập file vite.config.js, chỉnh sửa appPath: "./app.js",
- * B4: Tạo file app.js, thêm code trên
- * B5: Truy cập package.json, thêm script "dev": "vite"
- * B6: Chạy npm run dev
+ * B1: npm init -y
+ * B2: npm i vite vite-plugin-node -D
+ * B3: npm i express
+ * B4: Tạo và truy cập file vite.config.js, chỉnh sửa appPath: "./app.js",
+ * B5: Tạo file app.js, thêm code trên
+ * B6: Truy cập package.json, thêm script "dev": "vite"
+ * B7: Chạy npm run dev
  */
