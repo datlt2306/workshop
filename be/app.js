@@ -14,7 +14,12 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(
+    express.json({
+        origin: "http://localhost:5173", // Thay bằng domain của client
+        credentials: true, // Cho phép gửi cookie
+    })
+);
 app.use(morgan("tiny")); // Sử dụng morgan để ghi lại các yêu cầu HTTP
 
 // Tự động thêm tất cả các router từ thư mục routes

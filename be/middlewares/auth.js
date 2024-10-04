@@ -9,7 +9,7 @@ const authMiddleware = async (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, "your_jwt_secret");
+        const decoded = jwt.verify(token, import.meta.env.VITE_JWT_SECRET);
         const user = await User.findById(decoded.id).select("-password");
         if (!user) {
             return res.status(404).json({ message: "Người dùng không tồn tại" });

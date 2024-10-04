@@ -1,22 +1,22 @@
 import User from "../models/user";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import emailjs from "@emailjs/nodejs";
+import { SMTPClient } from "emailjs";
 
 // Đăng ký người dùng mới
 export const register = async (req, res) => {
-    console.log(req.body);
     try {
         const { username, email, password } = req.body;
 
-        // Kiểm tra xem email đã tồn tại chưa
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "Email đã được sử dụng" });
         }
-
-        const user = new User({ username, email, password });
-        await user.save();
+        // Kiểm tra xem có người dùng nào trong hệ thống chưa
+        const userCount = await User.countDocuments({});
+        const role = userCount === 0 ? "admin" : "customer";
+        console.log({ username, email, password, role });
+        const user = await User.create({ username, email, password, role });
         res.status(201).json({ message: "Đăng ký thành công" });
     } catch (error) {
         res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình đăng ký" });
@@ -40,11 +40,13 @@ export const login = async (req, res) => {
         user.lastLogin = new Date();
         await user.save();
 
-        const token = jwt.sign({ id: user._id, role: user.role }, "your_jwt_secret", {
+        const token = jwt.sign({ id: user._id, role: user.role }, import.meta.env.VITE_JWT_SECRET, {
             expiresIn: "1h",
         });
-
-        res.status(200).json({ token });
+        user.password = undefined;
+        user.role = undefined;
+        user.status = undefined;
+        res.status(200).json({ token, user });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
