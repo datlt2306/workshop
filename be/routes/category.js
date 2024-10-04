@@ -1,19 +1,23 @@
 import express from "express";
 import {
     createCategory,
+    deleteCategory,
     getCategories,
     getCategoryById,
     updateCategory,
-    deleteCategory,
-} from "../controllers/category.js";
+} from "../controllers/category";
+import { authMiddleware, checkAccountStatus, roleMiddleware } from "../middlewares/auth";
 
 const router = express.Router();
 
+// Middleware kết hợp
+const adminMiddleware = [authMiddleware, checkAccountStatus, roleMiddleware("admin")];
+
 // Định nghĩa các route cho Category
-router.post("/categories", createCategory);
+router.post("/categories", adminMiddleware, createCategory);
 router.get("/categories", getCategories);
 router.get("/categories/:id", getCategoryById);
-router.put("/categories/:id", updateCategory);
-router.delete("/categories/:id", deleteCategory);
+router.put("/categories/:id", adminMiddleware, updateCategory);
+router.delete("/categories/:id", adminMiddleware, deleteCategory);
 
 export default router;
