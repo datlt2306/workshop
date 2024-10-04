@@ -3,11 +3,17 @@ import Attribute from "../models/attribute";
 
 export const createProduct = async (req, res) => {
     try {
-        const { product_attributes } = req.body;
+        const { product_name, product_attributes } = req.body;
+
+        // Kiểm tra xem sản phẩm với tên này đã tồn tại chưa
+        const existingProduct = await Product.findOne({ product_name });
+        if (existingProduct) {
+            return res.status(400).json({ message: "Sản phẩm với tên này đã tồn tại" });
+        }
 
         const attributes = await Attribute.find({ _id: { $in: product_attributes } });
         if (attributes.length !== product_attributes.length) {
-            return res.status(400).json({ message: "One or more attributes not found" });
+            return res.status(400).json({ message: "Một hoặc nhiều thuộc tính không tìm thấy" });
         }
 
         const product = await Product.create(req.body);
@@ -20,9 +26,19 @@ export const createProduct = async (req, res) => {
 export const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
-        const product = await Product.findById(id).populate("product_attributes");
+        const { _embed } = req.query;
+        let query = Product.findById(id);
+
+        if (_embed) {
+            const embeds = _embed.split(",");
+            embeds.forEach((embed) => {
+                query = query.populate(embed);
+            });
+        }
+
+        const product = await query.exec();
         if (!product) {
-            return res.status(404).json({ message: "Product not found" });
+            return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
         }
         res.status(200).json(product);
     } catch (error) {
@@ -32,18 +48,60 @@ export const getProductById = async (req, res) => {
 
 export const getProducts = async (req, res) => {
     try {
-        const { _page = 1, _limit = 10 } = req.query;
+        const { _page = 1, _limit = 10, _embed } = req.query;
         const options = {
             page: parseInt(_page, 10),
             limit: parseInt(_limit, 10),
         };
-        const result = await Product.paginate({}, options);
+
+        let query = Product.find();
+
+        if (_embed) {
+            const embeds = _embed.split(",");
+            embeds.forEach((embed) => {
+                query = query.populate(embed);
+            });
+        }
+
+        const result = await Product.paginate(query, options);
+        const { docs, ...paginationData } = result; // Loại bỏ trường docs
+
         return res.status(200).json({
-            products: result.docs,
-            docs: undefined,
-            ...result,
+            products: docs,
+            ...paginationData,
         });
     } catch (error) {
         return res.status(500).json({ message: error.message });
+    }
+};
+
+// Cập nhật một sản phẩm theo ID
+export const updateProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await Product.findByIdAndUpdate(id, req.body, {
+            new: true,
+            runValidators: true,
+        });
+        if (!product) {
+            return res.status(404).json({ message: "Không tìm thấy sản phẩm nào" });
+        }
+        res.status(200).json(product);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+// Xóa một sản phẩm theo ID
+export const deleteProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await Product.findByIdAndDelete(id);
+        if (!product) {
+            return res.status(404).json({ message: "Không tìm thấy sản phẩm nào" });
+        }
+        res.status(200).json({ message: "Xóa sản phẩm thành công" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };

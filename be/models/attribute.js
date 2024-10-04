@@ -36,20 +36,23 @@ const varriantSchema = new mongoose.Schema({
     },
 });
 
-export const attributeSchema = new mongoose.Schema({
-    attribute_name: {
-        type: String,
-        required: true,
+export const attributeSchema = new mongoose.Schema(
+    {
+        attribute_name: {
+            type: String,
+            required: true,
+        },
+        attribute_value: {
+            type: [varriantSchema],
+            required: true,
+        },
+        attribute_type: {
+            type: String,
+            required: true,
+        },
     },
-    attribute_value: {
-        type: [varriantSchema],
-        required: true,
-    },
-    attribute_type: {
-        type: String,
-        required: true,
-    },
-});
+    { timestamps: true, versionKey: false }
+);
 
 export default mongoose.model("Attribute", attributeSchema);
 
