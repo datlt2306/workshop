@@ -10,10 +10,17 @@ const authMiddleware = async (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, "your_jwt_secret");
-        req.user = await User.findById(decoded.id).select("-password");
-        if (!req.user) {
+        const user = await User.findById(decoded.id).select("-password");
+        if (!user) {
             return res.status(404).json({ message: "Người dùng không tồn tại" });
         }
+
+        // Kiểm tra trạng thái tài khoản
+        if (!user.status) {
+            return res.status(403).json({ message: "Tài khoản của bạn đã bị khóa" });
+        }
+
+        req.user = user;
         next();
     } catch (error) {
         res.status(401).json({ message: "Token không hợp lệ" });
@@ -35,13 +42,6 @@ const roleMiddleware = (requiredRole) => {
     };
 };
 
-const checkAccountStatus = (req, res, next) => {
-    if (!req.user.status) {
-        return res.status(403).json({ message: "Tài khoản của bạn đã bị khóa" });
-    }
-    next();
-};
-
 const multiRoleMiddleware = (allowedRoles) => {
     return (req, res, next) => {
         if (!req.user) {
@@ -57,4 +57,4 @@ const multiRoleMiddleware = (allowedRoles) => {
     };
 };
 
-export { authMiddleware, roleMiddleware, checkAccountStatus, multiRoleMiddleware };
+export { authMiddleware, roleMiddleware, multiRoleMiddleware };

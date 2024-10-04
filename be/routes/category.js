@@ -6,12 +6,12 @@ import {
     getCategoryById,
     updateCategory,
 } from "../controllers/category";
-import { authMiddleware, checkAccountStatus, roleMiddleware } from "../middlewares/auth";
+import { authMiddleware, roleMiddleware } from "../middlewares/auth";
 
 const router = express.Router();
 
 // Middleware kết hợp
-const adminMiddleware = [authMiddleware, checkAccountStatus, roleMiddleware("admin")];
+const adminMiddleware = [authMiddleware, roleMiddleware("admin")];
 
 // Định nghĩa các route cho Category
 router.post("/categories", adminMiddleware, createCategory);

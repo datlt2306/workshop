@@ -19,12 +19,18 @@ app.use(morgan("tiny")); // Sử dụng morgan để ghi lại các yêu cầu H
 
 // Tự động thêm tất cả các router từ thư mục routes
 const routesPath = path.join(__dirname, "routes");
-fs.readdirSync(routesPath).forEach((file) => {
-    if (file.endsWith(".js")) {
+const loadRoutes = async () => {
+    const files = fs.readdirSync(routesPath).filter((file) => file.endsWith(".js"));
+    const importPromises = files.map((file) =>
         import(/* @vite-ignore */ path.join(routesPath, file)).then((module) => {
             app.use("/api", module.default);
-        });
-    }
+        })
+    );
+    await Promise.all(importPromises);
+};
+
+loadRoutes().catch((error) => {
+    console.error("Error loading routes:", error);
 });
 
 // Kết nối tới MongoDB
