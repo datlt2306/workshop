@@ -1,81 +1,75 @@
 import React, { useState } from "react";
 import {
-    DesktopOutlined,
-    FileOutlined,
-    PieChartOutlined,
-    TeamOutlined,
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
+    UploadOutlined,
     UserOutlined,
+    VideoCameraOutlined,
 } from "@ant-design/icons";
-import type { MenuProps } from "antd";
-import { Breadcrumb, Layout, Menu, theme } from "antd";
+import { Button, Layout, Menu, theme } from "antd";
 import { Outlet } from "react-router-dom";
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Sider, Content } = Layout;
 
-type MenuItem = Required<MenuProps>["items"][number];
-
-function getItem(
-    label: React.ReactNode,
-    key: React.Key,
-    icon?: React.ReactNode,
-    children?: MenuItem[]
-): MenuItem {
-    return {
-        key,
-        icon,
-        children,
-        label,
-    } as MenuItem;
-}
-
-const items: MenuItem[] = [
-    getItem("Option 1", "1", <PieChartOutlined />),
-    getItem("Option 2", "2", <DesktopOutlined />),
-    getItem("User", "sub1", <UserOutlined />, [
-        getItem("Tom", "3"),
-        getItem("Bill", "4"),
-        getItem("Alex", "5"),
-    ]),
-    getItem("Team", "sub2", <TeamOutlined />, [getItem("Team 1", "6"), getItem("Team 2", "8")]),
-    getItem("Files", "9", <FileOutlined />),
-];
-
-const LayoutAdmin: React.FC = () => {
+const App: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
 
     return (
-        <Layout style={{ minHeight: "100vh" }}>
-            <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+        <Layout className="h-screen">
+            <Sider trigger={null} collapsible collapsed={collapsed}>
                 <div className="demo-logo-vertical" />
-                <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline" items={items} />
+                <Menu
+                    theme="dark"
+                    mode="inline"
+                    defaultSelectedKeys={["1"]}
+                    items={[
+                        {
+                            key: "1",
+                            icon: <UserOutlined />,
+                            label: "nav 1",
+                        },
+                        {
+                            key: "2",
+                            icon: <VideoCameraOutlined />,
+                            label: "nav 2",
+                        },
+                        {
+                            key: "3",
+                            icon: <UploadOutlined />,
+                            label: "nav 3",
+                        },
+                    ]}
+                />
             </Sider>
             <Layout>
-                <Header style={{ padding: 0, background: colorBgContainer }} />
-                <Content style={{ margin: "0 16px" }}>
-                    <Breadcrumb style={{ margin: "16px 0" }}>
-                        <Breadcrumb.Item>User</Breadcrumb.Item>
-                        <Breadcrumb.Item>Bill</Breadcrumb.Item>
-                    </Breadcrumb>
-                    <div
+                <Header style={{ padding: 0, background: colorBgContainer }}>
+                    <Button
+                        type="text"
+                        icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                        onClick={() => setCollapsed(!collapsed)}
                         style={{
-                            padding: 24,
-                            minHeight: 360,
-                            background: colorBgContainer,
-                            borderRadius: borderRadiusLG,
+                            fontSize: "16px",
+                            width: 64,
+                            height: 64,
                         }}
-                    >
-                        <Outlet />
-                    </div>
+                    />
+                </Header>
+                <Content
+                    className="max-w-6xl my-8 mx-auto w-full"
+                    style={{
+                        padding: 24,
+                        background: colorBgContainer,
+                        borderRadius: borderRadiusLG,
+                    }}
+                >
+                    <Outlet />
                 </Content>
-                <Footer style={{ textAlign: "center" }}>
-                    Ant Design ©{new Date().getFullYear()} Created by Ant UED
-                </Footer>
             </Layout>
         </Layout>
     );
 };
 
-export default LayoutAdmin;
+export default App;

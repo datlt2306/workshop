@@ -1,13 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery } from "@tanstack/react-query";
-import { Image, Skeleton, Table, TableProps } from "antd";
+import { Image, Skeleton, Table } from "antd";
+import type { TableProps } from "antd/es/table";
+import { IProduct } from "../../../interfaces/product";
+import axios from "axios";
 
 interface DataType {
     key: string;
+    imageUrl: string;
     name: string;
     price: number;
-    in_stock: boolean;
-    image: string;
+    stock: boolean;
     description: string;
 }
 
@@ -15,21 +17,20 @@ const AdminProductsPage = () => {
     const { data, isLoading } = useQuery({
         queryKey: ["products"],
         queryFn: async () => {
-            const response = await fetch(`http://localhost:3000/api/products`);
-            const data = await response.json();
-            return data.map((product: any) => ({
-                key: product.key,
+            const response = await axios.get(`http://localhost:3000/api/products`);
+            console.log(response);
+            return response.data.products.map((product: IProduct) => ({
+                key: product._id,
                 ...product,
             }));
         },
     });
-
     const columns: TableProps<DataType>["columns"] = [
         {
             title: "Ảnh",
-            dataIndex: "image",
-            key: "image",
-            render: (image) => <Image src={image} width={50} />,
+            dataIndex: "imageUrl",
+            key: "imageUrl",
+            render: (imageUrl) => <Image src={imageUrl} width={50} />,
         },
         {
             title: "Tên",
@@ -44,25 +45,25 @@ const AdminProductsPage = () => {
         },
         {
             title: "Tình trạng",
-            dataIndex: "in_stock",
-            key: "in_stock",
-            render: (in_stock) => <div>{in_stock ? "Còn hàng" : "Hết hàng"}</div>,
+            dataIndex: "stock",
+            key: "stock",
+            render: (stock) => <div>{stock ? "Còn hàng" : "Hết hàng"}</div>,
         },
         {
             title: "Mô tả",
-            key: "description",
             dataIndex: "description",
-        },
-        {
-            key: "action",
+            key: "description",
         },
     ];
+    if (isLoading) return <Skeleton active />;
+    console.log(data);
     return (
-        <>
-            <Skeleton loading={isLoading} active>
-                <Table columns={columns} dataSource={data} />
-            </Skeleton>
-        </>
+        <Table
+            columns={columns}
+            dataSource={data}
+            loading={isLoading}
+            pagination={{ pageSize: 10 }}
+        />
     );
 };
 

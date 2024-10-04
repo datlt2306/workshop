@@ -4,7 +4,7 @@ import slugify from "slugify";
 
 const ProductSchema = new mongoose.Schema(
     {
-        product_name: {
+        name: {
             type: String,
             required: true,
             minlength: 3,
@@ -14,47 +14,47 @@ const ProductSchema = new mongoose.Schema(
             type: String,
             unique: true,
         },
-        product_price: {
+        price: {
             type: Number,
             required: true,
         },
-        product_image_url: {
+        image_url: {
             type: String,
             required: true,
         },
-        product_attributes: [
+        attributes: [
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Attribute",
                 required: true,
             },
         ],
-        product_quantity: {
+        quantity: {
             type: Number,
             default: 1,
         },
-        product_description: {
+        description: {
             type: String,
         },
-        product_rating: {
+        rating: {
             type: Number,
             min: 0,
             max: 5,
         },
-        product_reviews: {
+        reviews: {
             type: Number,
             default: 0,
         },
-        product_category: {
+        category: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Category",
         },
-        product_tags: [String],
-        product_sku: {
+        tags: [String],
+        sku: {
             type: String,
             required: true,
         },
-        product_status: {
+        status: {
             type: Boolean,
             default: true,
         },
@@ -64,8 +64,8 @@ const ProductSchema = new mongoose.Schema(
 
 // Middleware để tự động tạo slug từ tên sản phẩm
 ProductSchema.pre("save", function (next) {
-    if (this.isModified("product_name")) {
-        this.slug = slugify(this.product_name, { lower: true, strict: true });
+    if (this.isModified("name")) {
+        this.slug = slugify(this.name, { lower: true, strict: true });
     }
     next();
 });

@@ -7,6 +7,7 @@ import LayoutAdmin from "./pages/(admin)/layout";
 import DashboardPage from "./pages/(admin)/dashboard/page";
 import NotFoundPage from "./pages/(website)/404/page";
 import AdminProductPage from "./pages/(admin)/products/page";
+import ProductAdd from "./pages/(admin)/products/add/page";
 
 function App() {
     return (
@@ -20,6 +21,7 @@ function App() {
                     <Route index element={<Navigate to="dashboard" />} />
                     <Route path="dashboard" element={<DashboardPage />} />
                     <Route path="products" element={<AdminProductPage />} />
+                    <Route path="products/add" element={<ProductAdd />} />
                 </Route>
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>

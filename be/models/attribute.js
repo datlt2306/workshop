@@ -1,36 +1,36 @@
 import mongoose from "mongoose";
 
 const varriantSchema = new mongoose.Schema({
-    varriant_name: {
+    name: {
         type: String,
         required: true,
     },
-    varriant_value: {
+    value: {
         type: String,
         required: true,
     },
-    varriant_image: {
+    image: {
         type: String,
         default: "",
     },
-    varriant_regular_price: {
+    regular_price: {
         type: Number,
         default: 0,
     },
-    varriant_sale_price: {
+    sale_price: {
         type: Number,
         default: 0,
     },
-    varriant_quantity: {
+    quantity: {
         type: Number,
         default: 0,
     },
-    varriant_stock_status: {
+    stock_status: {
         type: String,
         enum: ["in_stock", "out_of_stock"],
         default: "in_stock",
     },
-    varriant_description: {
+    description: {
         type: String,
         default: "",
     },
@@ -38,15 +38,15 @@ const varriantSchema = new mongoose.Schema({
 
 export const attributeSchema = new mongoose.Schema(
     {
-        attribute_name: {
+        name: {
             type: String,
             required: true,
         },
-        attribute_value: {
+        value: {
             type: [varriantSchema],
             required: true,
         },
-        attribute_type: {
+        type: {
             type: String,
             required: true,
         },

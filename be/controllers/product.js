@@ -3,16 +3,16 @@ import Attribute from "../models/attribute";
 
 export const createProduct = async (req, res) => {
     try {
-        const { product_name, product_attributes } = req.body;
+        const { name, productAttributes } = req.body;
 
         // Kiểm tra xem sản phẩm với tên này đã tồn tại chưa
-        const existingProduct = await Product.findOne({ product_name });
+        const existingProduct = await Product.findOne({ name });
         if (existingProduct) {
             return res.status(400).json({ message: "Sản phẩm với tên này đã tồn tại" });
         }
 
-        const attributes = await Attribute.find({ _id: { $in: product_attributes } });
-        if (attributes.length !== product_attributes.length) {
+        const attributes = await Attribute.find({ _id: { $in: productAttributes } });
+        if (attributes.length !== attributes.length) {
             return res.status(400).json({ message: "Một hoặc nhiều thuộc tính không tìm thấy" });
         }
 
