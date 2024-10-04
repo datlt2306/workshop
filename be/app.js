@@ -15,7 +15,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(morgan("combined")); // Sử dụng morgan để ghi lại các yêu cầu HTTP
+app.use(morgan("tiny")); // Sử dụng morgan để ghi lại các yêu cầu HTTP
 
 // Tự động thêm tất cả các router từ thư mục routes
 const routesPath = path.join(__dirname, "routes");

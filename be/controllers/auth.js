@@ -1,9 +1,9 @@
 import User from "../models/user";
 import jwt from "jsonwebtoken";
-import logger from "../utils/logger"; // Giả sử bạn có một module logger
 
 // Đăng ký người dùng mới
 export const register = async (req, res) => {
+    console.log(req.body);
     try {
         const { username, email, password } = req.body;
 
@@ -17,7 +17,6 @@ export const register = async (req, res) => {
         await user.save();
         res.status(201).json({ message: "Đăng ký thành công" });
     } catch (error) {
-        logger.error("Error during registration: ", error);
         res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình đăng ký" });
     }
 };
@@ -39,7 +38,6 @@ export const login = async (req, res) => {
         });
         res.status(200).json({ token });
     } catch (error) {
-        logger.error("Error during login: ", error);
         res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình đăng nhập" });
     }
 };
@@ -57,7 +55,6 @@ export const getCurrentUser = async (req, res) => {
         }
         res.status(200).json(user);
     } catch (error) {
-        logger.error("Error fetching current user: ", error);
         res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình lấy thông tin người dùng" });
     }
 };
