@@ -1,9 +1,13 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import attributeRoutes from "./routes/attribute";
-import productRouter from "./routes/product";
-import categoryRoutes from "./routes/category";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Lấy đường dẫn hiện tại và chuyển đổi thành đường dẫn thư mục
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -11,10 +15,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use("/api", attributeRoutes);
-app.use("/api", productRouter);
-app.use("/api", categoryRoutes);
+// Tự động thêm tất cả các router từ thư mục routes
+const routesPath = path.join(__dirname, "routes");
+fs.readdirSync(routesPath).forEach((file) => {
+    if (file.endsWith(".js")) {
+        import(/* @vite-ignore */ path.join(routesPath, file)).then((module) => {
+            app.use("/api", module.default);
+        });
+    }
+});
 
 // Kết nối tới MongoDB
 mongoose.connect("mongodb://127.0.0.1:27017/workshop");
