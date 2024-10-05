@@ -62,10 +62,28 @@ const ProductSchema = new mongoose.Schema(
     { timestamps: true, versionKey: false }
 );
 
-// Middleware để tự động tạo slug từ tên sản phẩm
+// Middleware để tự động tạo slug từ tên sản phẩm khi lưu
 ProductSchema.pre("save", function (next) {
     if (this.isModified("name")) {
         this.slug = slugify(this.name, { lower: true, strict: true });
+    }
+    next();
+});
+
+// Middleware để tự động tạo slug từ tên sản phẩm khi cập nhật bằng findOneAndUpdate
+ProductSchema.pre("findOneAndUpdate", function (next) {
+    const update = this.getUpdate();
+    if (update.name) {
+        update.slug = slugify(update.name, { lower: true, strict: true });
+    }
+    next();
+});
+
+// Middleware để tự động tạo slug từ tên sản phẩm khi cập nhật bằng updateOne
+ProductSchema.pre("updateOne", function (next) {
+    const update = this.getUpdate();
+    if (update.name) {
+        update.slug = slugify(update.name, { lower: true, strict: true });
     }
     next();
 });

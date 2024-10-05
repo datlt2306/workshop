@@ -64,7 +64,7 @@ export default router;
 ## Bước 5: Kiểm tra chức năng
 
 -   Chạy lệnh `npm run dev` để khởi động server.
--   Sử dụng `Postman` hoặc công cụ tương tự để gửi yêu cầu POST tới endpoint `/api/products` để kiểm tra chức năng thêm sản phẩm.
+-   Sử dụng `Postman` hoặc công cụ tương tự để gửi yêu cầu `POST` tới endpoint `/api/products` để kiểm tra chức năng thêm sản phẩm.
 
 ### Ví dụ yêu cầu thêm sản phẩm
 

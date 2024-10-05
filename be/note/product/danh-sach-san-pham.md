@@ -133,7 +133,7 @@ export default router;
 ## Bước 5: Kiểm tra chức năng
 
 -   Chạy lệnh `npm run dev` để khởi động server.
--   Sử dụng Postman hoặc công cụ tương tự để gửi yêu cầu GET tới endpoint `/api/products` để kiểm tra chức năng lấy danh sách sản phẩm với phân trang.
+-   Sử dụng Postman hoặc công cụ tương tự để gửi yêu cầu `GET` tới endpoint `/api/products` để kiểm tra chức năng lấy danh sách sản phẩm với phân trang.
 
 ### Ví dụ yêu cầu lấy danh sách sản phẩm
 
