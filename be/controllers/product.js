@@ -8,12 +8,15 @@ export const getProducts = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
-export const addProduct = async (req, res) => {
+export const createProduct = async (req, res) => {
     try {
+        // Tạo sản phẩm mới với dữ liệu từ request body
         const product = await Product.create(req.body);
-        return res.status(201).json(product);
+        // Trả về phản hồi thành công với mã trạng thái 201 và dữ liệu sản phẩm mới
+        res.status(201).json(product);
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        // Xử lý lỗi và trả về phản hồi lỗi với mã trạng thái 400
+        res.status(400).json({ message: error.message });
     }
 };
 
