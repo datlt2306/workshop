@@ -1,5 +1,0 @@
-{
-    "watch": ["./**/*.js"],
-    "exec": "vite",
-    "ext": "js,json"
-}

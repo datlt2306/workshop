@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { SMTPClient } from "emailjs";
 
 // Đăng ký người dùng mới
-export const register = async (req, res) => {
+export const signup = async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
@@ -24,7 +24,7 @@ export const register = async (req, res) => {
 };
 
 // Đăng nhập người dùng
-export const login = async (req, res) => {
+export const signin = async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });

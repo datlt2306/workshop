@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
-    login,
-    register,
+    signin,
+    signup,
     requestPasswordReset,
     resetPassword,
     getCurrentUser,
@@ -10,8 +10,8 @@ import { authMiddleware } from "../middlewares/auth";
 
 const router = Router();
 
-router.post(`/register`, register);
-router.post(`/login`, login);
+router.post(`/signup`, signup);
+router.post(`/signin`, signin);
 router.post(`/request-password-reset`, requestPasswordReset);
 router.post(`/reset-password`, resetPassword);
 router.get(`/current-user`, authMiddleware, getCurrentUser);
