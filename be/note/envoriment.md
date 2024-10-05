@@ -13,7 +13,7 @@ npm init -y
 Cài đặt Vite và vite-plugin-node dưới dạng devDependencies:
 
 ```bash
-npm install vite vite-plugin-node --save-dev
+npm install vite vite-plugin-node nodemon --save-dev
 ```
 
 ## Bước 3: Cài đặt Express
@@ -54,6 +54,24 @@ Tạo file `app.js` và thêm code sau để thiết lập server Express:
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import morgan from "morgan";
+
+const app = express();
+
+// Middleware
+app.use(cors()); // Cho phép tất cả các nguồn gốc truy cập
+app.use(express.json()); // Chuyển đổi body của request thành JSON
+app.use(morgan("tiny")); // Ghi lại các yêu cầu HTTP
+
+// Kết nối tới MongoDB
+mongoose.connect("mongodb://127.0.0.1:27017/workshop");
+
+export const viteNodeApp = app;
+```
+
+## Bước 6: Bổ sung tự động load router
+
+```javascript
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -62,13 +80,6 @@ import morgan from "morgan";
 // Lấy đường dẫn hiện tại và chuyển đổi thành đường dẫn thư mục
 const __filename = fileURLToPath(import.meta.url); // Lấy đường dẫn file hiện tại
 const __dirname = path.dirname(__filename); // Lấy đường dẫn thư mục chứa file hiện tại
-
-const app = express();
-
-// Middleware
-app.use(cors()); // Cho phép tất cả các nguồn gốc truy cập
-app.use(express.json()); // Chuyển đổi body của request thành JSON
-app.use(morgan("tiny")); // Ghi lại các yêu cầu HTTP
 
 // Tự động thêm tất cả các router từ thư mục routes
 const routesPath = path.join(__dirname, "routes"); // Đường dẫn tới thư mục routes
@@ -85,11 +96,6 @@ const loadRoutes = async () => {
 loadRoutes().catch((error) => {
     console.error("Error loading routes:", error); // Xử lý lỗi nếu có
 });
-
-// Kết nối tới MongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/workshop");
-
-export const viteNodeApp = app;
 ```
 
 ## Bước 6: Cấu hình script trong package.json
