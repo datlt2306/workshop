@@ -25,7 +25,7 @@ npm install vite vite-plugin-node nodemon --save-dev
 Cài đặt Express để xây dựng server:
 
 ```bash
-npm install express mongoose cors morgan sluginfy --save
+npm install express mongoose cors morgan slugify --save
 ```
 
 -   **Express** là một framework web nhanh và tối giản cho Node.js.
@@ -79,36 +79,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/workshop");
 export const viteNodeApp = app;
 ```
 
-## Bước 6: Bổ sung tự động load router
-
-```javascript
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import morgan from "morgan";
-
-// Lấy đường dẫn hiện tại và chuyển đổi thành đường dẫn thư mục
-const __filename = fileURLToPath(import.meta.url); // Lấy đường dẫn file hiện tại
-const __dirname = path.dirname(__filename); // Lấy đường dẫn thư mục chứa file hiện tại
-
-// Tự động thêm tất cả các router từ thư mục routes
-const routesPath = path.join(__dirname, "routes"); // Đường dẫn tới thư mục routes
-const loadRoutes = async () => {
-    const files = fs.readdirSync(routesPath).filter((file) => file.endsWith(".js")); // Lấy tất cả các file .js trong thư mục routes
-    const importPromises = files.map((file) =>
-        import(/* @vite-ignore */ path.join(routesPath, file)).then((module) => {
-            app.use("/api", module.default); // Thêm từng router vào ứng dụng
-        })
-    );
-    await Promise.all(importPromises); // Đợi tất cả các router được thêm vào
-};
-
-loadRoutes().catch((error) => {
-    console.error("Error loading routes:", error); // Xử lý lỗi nếu có
-});
-```
-
-## Bước 7: Cấu hình script trong package.json
+## Bước 6: Cấu hình script trong package.json
 
 Mở file `package.json` và thêm script để chạy server:
 
@@ -120,7 +91,7 @@ Mở file `package.json` và thêm script để chạy server:
 }
 ```
 
-## Bước 8: Chạy server
+## Bước 7: Chạy server
 
 Chạy lệnh sau để khởi động server:
 
@@ -128,6 +99,6 @@ Chạy lệnh sau để khởi động server:
 npm run dev
 ```
 
-## Bước 9: Kiểm tra server
+## Bước 8 Kiểm tra server
 
 Mở trình duyệt và truy cập http://localhost:3000 để kiểm tra server đã hoạt động.

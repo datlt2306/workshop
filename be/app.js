@@ -1,38 +1,15 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import morgan from "morgan";
-
-// Lấy đường dẫn hiện tại và chuyển đổi thành đường dẫn thư mục
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+import productRouter from "./routes/product";
 const app = express();
-
-// Middleware
 app.use(cors());
+app.use(morgan("dev"));
 app.use(express.json());
-// Sử dụng morgan để ghi lại các yêu cầu HTTP
-app.use(morgan("tiny"));
-// Tự động thêm tất cả các router từ thư mục routes
-const routesPath = path.join(__dirname, "routes");
-const loadRoutes = async () => {
-    const files = fs.readdirSync(routesPath).filter((file) => file.endsWith(".js"));
-    const importPromises = files.map((file) =>
-        import(/* @vite-ignore */ path.join(routesPath, file)).then((module) => {
-            app.use("/api", module.default);
-        })
-    );
-    await Promise.all(importPromises);
-};
 
-loadRoutes().catch((error) => {
-    console.error("Error loading routes:", error);
-});
-
+// routers
+app.use(`/api`, productRouter);
 // Kết nối tới MongoDB
 mongoose.connect("mongodb://127.0.0.1:27017/workshop");
 

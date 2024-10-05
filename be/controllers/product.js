@@ -1,9 +1,11 @@
 import Product from "../models/product";
 import Attribute from "../models/attribute";
+import slugify from "slugify";
 
 export const createProduct = async (req, res) => {
     try {
-        const { name, productAttributes } = req.body;
+        console.log(req.body);
+        const { name, attributes } = req.body;
 
         // Kiểm tra xem sản phẩm với tên này đã tồn tại chưa
         const existingProduct = await Product.findOne({ name });
@@ -11,12 +13,15 @@ export const createProduct = async (req, res) => {
             return res.status(400).json({ message: "Sản phẩm với tên này đã tồn tại" });
         }
 
-        const attributes = await Attribute.find({ _id: { $in: productAttributes } });
-        if (attributes.length !== attributes.length) {
+        const productAttributes = await Attribute.find({ _id: { $in: attributes } });
+        if (productAttributes.length !== productAttributes.length) {
             return res.status(400).json({ message: "Một hoặc nhiều thuộc tính không tìm thấy" });
         }
 
-        const product = await Product.create(req.body);
+        // Tạo slug từ tên sản phẩm
+        const slug = slugify(name, { lower: true });
+
+        const product = await Product.create({ ...req.body, slug });
         res.status(201).json(product);
     } catch (error) {
         res.status(400).json({ message: error.message });

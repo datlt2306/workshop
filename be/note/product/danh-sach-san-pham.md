@@ -1,13 +1,12 @@
 # Chức năng lấy danh sách sản phẩm
 
-## Bước 1: Tạo model sản phẩm
+### Bước 1: Tạo model sản phẩm
 
 -   Tạo file [models/product.js](../../models/product.js) và định nghĩa schema sản phẩm.
 
 ```javascript
 import mongoose from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
-import slugify from "slugify";
 
 const ProductSchema = new mongoose.Schema(
     {
@@ -29,13 +28,6 @@ const ProductSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        attributes: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Attribute",
-                required: true,
-            },
-        ],
         quantity: {
             type: Number,
             default: 1,
@@ -52,10 +44,6 @@ const ProductSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
-        category: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Category",
-        },
         tags: [String],
         sku: {
             type: String,
@@ -69,21 +57,13 @@ const ProductSchema = new mongoose.Schema(
     { timestamps: true, versionKey: false }
 );
 
-// Middleware để tự động tạo slug từ tên sản phẩm
-ProductSchema.pre("save", function (next) {
-    if (this.isModified("name")) {
-        this.slug = slugify(this.name, { lower: true, strict: true });
-    }
-    next();
-});
-
 // Thêm plugin mongoose-paginate-v2 để hỗ trợ phân trang
 ProductSchema.plugin(mongoosePaginate);
 
 export default mongoose.model("Product", ProductSchema);
 ```
 
-## Bước 2: Cài đặt mongoose-paginate-v2
+### Bước 2: Cài đặt mongoose-paginate-v2
 
 -   Chạy lệnh sau để cài đặt mongoose-paginate-v2:
 
@@ -91,7 +71,7 @@ export default mongoose.model("Product", ProductSchema);
 npm install mongoose-paginate-v2
 ```
 
-## Bước 3: Tạo controller lấy danh sách sản phẩm
+### Bước 3: Tạo controller lấy danh sách sản phẩm
 
 Tạo file [controllers/product.js](../../controllers/product.js) và định nghĩa hàm lấy danh sách sản phẩm.
 
@@ -114,27 +94,91 @@ export const getProducts = async (req, res) => {
 };
 ```
 
-## Bước 4: Tạo route lấy danh sách sản phẩm
+### Bước 4: Tạo route lấy danh sách sản phẩm
 
 -   Mở file [routes/product.js](../../routes/product.js).
 
 ```javascript
 import express from "express";
-import { getProducts } from "../controllers/product";
+import { getProducts, createProduct } from "../controllers/product";
 
 const router = express.Router();
 
-// Định nghĩa các route cho Product
+// Route để lấy danh sách sản phẩm
 router.get("/products", getProducts);
+// Route để thêm một sản phẩm mới
+router.post("/products", createProduct);
 
 export default router;
 ```
 
-## Bước 5: Kiểm tra chức năng
+### Bước 5: Nhúng router vào ứng dụng
+
+-   Mở file [app.js](../../app.js).
+-   Nhúng router sản phẩm vào ứng dụng.
+
+```javascript
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import morgan from "morgan";
+import productRouter from "./routes/product";
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(morgan("tiny"));
+
+// Nhúng router sản phẩm vào ứng dụng
+app.use("/api", productRouter);
+// Kết nối tới MongoDB
+mongoose.connect("mongodb://127.0.0.1:27017/workshop");
+
+export const viteNodeApp = app;
+```
+
+### Bước 6: Kiểm tra chức năng
 
 -   Chạy lệnh `npm run dev` để khởi động server.
 -   Sử dụng Postman hoặc công cụ tương tự để gửi yêu cầu `GET` tới endpoint `/api/products` để kiểm tra chức năng lấy danh sách sản phẩm với phân trang.
 
-### Ví dụ yêu cầu lấy danh sách sản phẩm
+#### Ví dụ yêu cầu lấy danh sách sản phẩm
 
 Gửi yêu cầu GET tới `http://localhost:3000/api/products?page=1&limit=10`.
+
+**Dữ liệu trả về**
+
+```json
+{
+    "products": [
+        {
+            "_id": "6700ad3107905e1c68bb1a5d",
+            "name": "Sản phẩm mới 1",
+            "price": 100,
+            "image_url": "https://example.com/image.jpg",
+            "quantity": 10,
+            "description": "Mô tả sản phẩm",
+            "rating": 4.5,
+            "reviews": 10,
+            "tags": ["tag1", "tag2"],
+            "sku": "SKU001",
+            "status": true,
+            "createdAt": "2024-10-05T03:06:25.694Z",
+            "updatedAt": "2024-10-05T03:06:25.694Z",
+            "slug": "san-pham-moi-1"
+        }
+        // các sản phẩm khác
+    ],
+    "totalDocs": 2,
+    "limit": 10,
+    "totalPages": 1,
+    "page": 1,
+    "pagingCounter": 1,
+    "hasPrevPage": false,
+    "hasNextPage": false,
+    "prevPage": null,
+    "nextPage": null
+}
+```
