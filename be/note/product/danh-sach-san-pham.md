@@ -2,7 +2,7 @@
 
 ## Bước 1: Tạo model sản phẩm
 
--   Tạo file [models/product.js](be/models/product.js) và định nghĩa schema sản phẩm.
+-   Tạo file [models/product.js](../../models/product.js) và định nghĩa schema sản phẩm.
 
 ```javascript
 import mongoose from "mongoose";
@@ -93,7 +93,7 @@ npm install mongoose-paginate-v2
 
 ## Bước 3: Tạo controller lấy danh sách sản phẩm
 
-Tạo file controllers/product.js và định nghĩa hàm lấy danh sách sản phẩm.
+Tạo file [controllers/product.js](../../controllers/product.js) và định nghĩa hàm lấy danh sách sản phẩm.
 
 ```javascript
 import Product from "../models/product";
@@ -116,7 +116,7 @@ export const getProducts = async (req, res) => {
 
 ## Bước 4: Tạo route lấy danh sách sản phẩm
 
--   Mở file [routes/product.js](be/routes/product.js).
+-   Mở file [routes/product.js](../../routes/product.js).
 
 ```javascript
 import express from "express";

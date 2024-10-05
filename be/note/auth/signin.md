@@ -2,7 +2,7 @@
 
 ## Bước 1: Tạo route cho chức năng đăng nhập:
 
--   Mở file [routes/auth.js](be/routes/auth.js).
+-   Mở file [routes/auth.js](../../routes/auth.js).
 -   Thêm route cho chức năng đăng nhập:
 
 ```javascript
@@ -22,7 +22,7 @@ export default router;
 
 ## Bước 2: Tạo controller cho chức năng đăng nhập:
 
--   Mở file [controllers/auth.js](be/controllers/auth.js).
+-   Mở file [controllers/auth.js](../../controllers/auth.js).
 -   Thêm hàm `login` để xử lý logic đăng nhập:
 
 ```javascript
@@ -67,7 +67,7 @@ export const login = async (req, res) => {
 
 ## Bước 3: Cập nhật model người dùng để hỗ trợ kiểm tra mật khẩu:
 
--   Mở file [models/user.js](be/models/user.js).
+-   Mở file [models/user.js](../../models/user.js).
 -   Đảm bảo rằng phương thức `comparePassword` đã được định nghĩa:
 
     ```javascript
@@ -80,7 +80,7 @@ export const login = async (req, res) => {
 
 ## Bước 4: Cấu hình biến môi trường:
 
--   Mở file [.env](be/.env).
+-   Mở file [.env](../../.env).
 -   Thêm biến môi trường cho JWT:
 
 ```

@@ -2,7 +2,7 @@
 
 ## Bước 1: Tạo model cho người dùng:
 
--   Mở file [models/user.js](be/models/user.js).
+-   Mở file [models/user.js](../../models/user.js).
 
 -   Định nghĩa schema và model cho người dùng:
 
@@ -66,7 +66,7 @@ export default mongoose.model("User", UserSchema);
 
 ## Bước 2: Tạo controller cho chức năng đăng ký:
 
--   Mở file [controllers/auth.js](be/controllers/auth.js).
+-   Mở file [controllers/auth.js](../../controllers/auth.js).
 -   Thêm hàm `register` để xử lý logic đăng ký:
 
 ```javascript
@@ -94,19 +94,19 @@ export const signup = async (req, res) => {
 
 ## Bước 3: Tạo route cho chức năng đăng ký:
 
-    - Mở file [routes/auth.js](be/routes/auth.js).
-    - Thêm route cho chức năng đăng ký:
+-   Mở file [routes/auth.js](../../routes/auth.js).
+-   Thêm route cho chức năng đăng ký:
 
-        ```javascript
-        import { Router } from "express";
-        import { signup } from "../controllers/auth";
+    ```javascript
+    import { Router } from "express";
+    import { signup } from "../controllers/auth";
 
-        const router = Router();
+    const router = Router();
 
-        router.post(`/signup`, signup);
+    router.post(`/signup`, signup);
 
-        export default router;
-        ```
+    export default router;
+    ```
 
 ## Bước 4: Chạy server và kiểm tra:
 
@@ -115,7 +115,7 @@ export const signup = async (req, res) => {
 
 ### Ví dụ yêu cầu đăng nhập
 
-Gửi yêu cầu POST tới `http://localhost:5000/api/signup` với dữ liệu JSON như sau:
+Gửi yêu cầu POST tới `http://localhost:3000/api/signup` với dữ liệu JSON như sau:
 
 ```json
 {

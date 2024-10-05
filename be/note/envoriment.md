@@ -94,7 +94,7 @@ export const viteNodeApp = app;
 
 ## Bước 6: Cấu hình script trong package.json
 
-Mở file package.json và thêm script để chạy server:
+Mở file `package.json` và thêm script để chạy server:
 
 ```json
 {
