@@ -2,7 +2,64 @@
 
 ## Bước 1: Tạo model sản phẩm
 
--   Dựa vào model product đã tạo ở bước [Chức năng lấy danh sách sản phẩm](./danh-sach-san-pham.md)
+-   Tạo file [models/product.js](../../models/product.js) và định nghĩa schema sản phẩm.
+
+```javascript
+import mongoose from "mongoose";
+
+const ProductSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: true,
+            minlength: 3,
+            unique: true,
+        },
+        slug: {
+            type: String,
+            unique: true,
+        },
+        price: {
+            type: Number,
+            required: true,
+        },
+        image_url: {
+            type: String,
+            required: true,
+        },
+
+        quantity: {
+            type: Number,
+            default: 1,
+        },
+        description: {
+            type: String,
+        },
+        rating: {
+            type: Number,
+            min: 0,
+            max: 5,
+        },
+        reviews: {
+            type: Number,
+            default: 0,
+        },
+
+        tags: [String],
+        sku: {
+            type: String,
+            required: true,
+        },
+        status: {
+            type: Boolean,
+            default: true,
+        },
+    },
+    { timestamps: true, versionKey: false }
+);
+
+export default mongoose.model("Product", ProductSchema);
+```
 
 ## Bước 2: Tạo controller cho sản phẩm
 
@@ -14,24 +71,7 @@ import Product from "../models/product";
 // Hàm để thêm một sản phẩm mới
 export const createProduct = async (req, res) => {
     try {
-        const { name, productAttributes } = req.body;
-
-        // Kiểm tra xem sản phẩm với tên này đã tồn tại chưa
-        const existingProduct = await Product.findOne({ name });
-        if (existingProduct) {
-            return res.status(400).json({ message: "Sản phẩm với tên này đã tồn tại" });
-        }
-
-        // Tìm các thuộc tính sản phẩm dựa trên danh sách ID
-        const attributes = await Attribute.find({ _id: { $in: productAttributes } });
-        // Kiểm tra xem tất cả các thuộc tính có tồn tại không
-        if (attributes.length !== productAttributes.length) {
-            return res.status(400).json({ message: "Một hoặc nhiều thuộc tính không tìm thấy" });
-        }
-
-        // Tạo sản phẩm mới với dữ liệu từ request body
         const product = await Product.create(req.body);
-        // Trả về phản hồi thành công với mã trạng thái 201 và dữ liệu sản phẩm mới
         res.status(201).json(product);
     } catch (error) {
         // Xử lý lỗi và trả về phản hồi lỗi với mã trạng thái 400
