@@ -21,7 +21,7 @@ npm install vite vite-plugin-node --save-dev
 Cài đặt Express để xây dựng server:
 
 ```bash
-npm install express
+npm install express mongoose cors morgan --save
 ```
 
 ## Bước 4: Cấu hình Vite
@@ -48,7 +48,7 @@ export default defineConfig({
 
 ## Bước 5: Tạo file app.js
 
-Tạo file app.js và thêm code sau để thiết lập server Express:
+Tạo file `app.js` và thêm code sau để thiết lập server Express:
 
 ```javascript
 import express from "express";
@@ -60,30 +60,30 @@ import { fileURLToPath } from "url";
 import morgan from "morgan";
 
 // Lấy đường dẫn hiện tại và chuyển đổi thành đường dẫn thư mục
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url); // Lấy đường dẫn file hiện tại
+const __dirname = path.dirname(__filename); // Lấy đường dẫn thư mục chứa file hiện tại
 
 const app = express();
 
 // Middleware
-app.use(cors());
-app.use(express.json());
-// Sử dụng morgan để ghi lại các yêu cầu HTTP
-app.use(morgan("tiny"));
+app.use(cors()); // Cho phép tất cả các nguồn gốc truy cập
+app.use(express.json()); // Chuyển đổi body của request thành JSON
+app.use(morgan("tiny")); // Ghi lại các yêu cầu HTTP
+
 // Tự động thêm tất cả các router từ thư mục routes
-const routesPath = path.join(__dirname, "routes");
+const routesPath = path.join(__dirname, "routes"); // Đường dẫn tới thư mục routes
 const loadRoutes = async () => {
-    const files = fs.readdirSync(routesPath).filter((file) => file.endsWith(".js"));
+    const files = fs.readdirSync(routesPath).filter((file) => file.endsWith(".js")); // Lấy tất cả các file .js trong thư mục routes
     const importPromises = files.map((file) =>
         import(/* @vite-ignore */ path.join(routesPath, file)).then((module) => {
-            app.use("/api", module.default);
+            app.use("/api", module.default); // Thêm từng router vào ứng dụng
         })
     );
-    await Promise.all(importPromises);
+    await Promise.all(importPromises); // Đợi tất cả các router được thêm vào
 };
 
 loadRoutes().catch((error) => {
-    console.error("Error loading routes:", error);
+    console.error("Error loading routes:", error); // Xử lý lỗi nếu có
 });
 
 // Kết nối tới MongoDB
