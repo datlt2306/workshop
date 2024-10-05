@@ -16,6 +16,10 @@ Cài đặt Vite và vite-plugin-node dưới dạng devDependencies:
 npm install vite vite-plugin-node nodemon --save-dev
 ```
 
+-   **Vite** là một công cụ build nhanh cho các dự án front-end hiện đại. Nó cung cấp một môi trường phát triển nhanh chóng với khả năng hot module replacement (HMR) và build sản phẩm cuối cùng với tốc độ cao.
+-   **vite-plugin-node** là một plugin cho Vite, giúp tích hợp các dự án Node.js với Vite. Plugin này cho phép bạn sử dụng Vite để build và phát triển các ứng dụng Node.js.
+-   **Nodemon** là một công cụ giúp tự động khởi động lại ứng dụng Node.js khi có thay đổi trong mã nguồn. Điều này giúp tăng tốc độ phát triển và giảm thiểu công việc thủ công.
+
 ## Bước 3: Cài đặt Express
 
 Cài đặt Express để xây dựng server:
@@ -23,6 +27,11 @@ Cài đặt Express để xây dựng server:
 ```bash
 npm install express mongoose cors morgan --save
 ```
+
+-   **Express** là một framework web nhanh và tối giản cho Node.js. Nó cung cấp một bộ công cụ mạnh mẽ để xây dựng các ứng dụng web và API.
+-   **Mongoose** là một thư viện ORM (Object-Relational Mapping) cho MongoDB và Node.js. Nó cung cấp một cách dễ dàng để mô hình hóa dữ liệu và tương tác với cơ sở dữ liệu MongoDB.
+-   **CORS (Cross-Origin Resource Sharing)** là một cơ chế cho phép các tài nguyên trên một trang web được yêu cầu từ một tên miền khác với tên miền mà tài nguyên đó được phục vụ. Thư viện `cors` giúp cấu hình CORS trong các ứng dụng Express.
+-   **Morgan** là một middleware cho Express, giúp ghi lại các yêu cầu HTTP vào console hoặc file log. Nó rất hữu ích cho việc debug và giám sát các ứng dụng web.
 
 ## Bước 4: Cấu hình Vite
 
@@ -98,7 +107,7 @@ loadRoutes().catch((error) => {
 });
 ```
 
-## Bước 6: Cấu hình script trong package.json
+## Bước 7: Cấu hình script trong package.json
 
 Mở file `package.json` và thêm script để chạy server:
 
@@ -110,7 +119,7 @@ Mở file `package.json` và thêm script để chạy server:
 }
 ```
 
-## Bước 7: Chạy server
+## Bước 8: Chạy server
 
 Chạy lệnh sau để khởi động server:
 
@@ -118,6 +127,6 @@ Chạy lệnh sau để khởi động server:
 npm run dev
 ```
 
-## Bước 8: Kiểm tra server
+## Bước 9: Kiểm tra server
 
 Mở trình duyệt và truy cập http://localhost:3000 để kiểm tra server đã hoạt động.
