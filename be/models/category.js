@@ -16,6 +16,6 @@ const CategorySchema = new mongoose.Schema(
     },
     { timestamps: true, versionKey: false }
 );
-CategorySchema.plugin(mongoosePaginate);
+categorySchema.plugin(mongoosePaginate);
 
 export default mongoose.model("Category", CategorySchema);

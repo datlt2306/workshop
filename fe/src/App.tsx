@@ -8,6 +8,8 @@ import DashboardPage from "./pages/(admin)/dashboard/page";
 import NotFoundPage from "./pages/(website)/404/page";
 import AdminProductPage from "./pages/(admin)/products/page";
 import ProductAdd from "./pages/(admin)/products/add/page";
+import Cart from "./pages/(website)/cart/page";
+import ProductList from "./pages/(website)/product/page";
 
 function App() {
     return (
@@ -15,6 +17,8 @@ function App() {
             <Routes>
                 <Route path="/" element={<LayoutWebsite />}>
                     <Route index element={<HomePage />} />
+                    <Route path="shop" element={<ProductList />} />
+                    <Route path="cart" element={<Cart />} />
                     <Route path="signup" element={<SignupPage />} />
                 </Route>
                 <Route path="admin" element={<LayoutAdmin />}>

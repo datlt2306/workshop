@@ -2,7 +2,7 @@
 
 **_Mục tiêu_**: Tạo chức năng thêm một sản phẩm mới vào cơ sở dữ liệu.
 
-### Bước 1: Tạo model sản phẩm
+## Bước 1: Tạo model sản phẩm
 
 -   Tạo file [models/product.js](../../models/product.js) và định nghĩa schema sản phẩm.
 
@@ -63,7 +63,7 @@ const ProductSchema = new mongoose.Schema(
 export default mongoose.model("Product", ProductSchema);
 ```
 
-### Bước 2: Tạo controller cho sản phẩm
+## Bước 2: Tạo controller cho sản phẩm
 
 -   Tạo file [controllers/product.js](../../controllers/product.js) và định nghĩa hàm thêm sản phẩm.
 
@@ -84,7 +84,7 @@ export const createProduct = async (req, res) => {
 };
 ```
 
-### Bước 3: Tạo router cho sản phẩm
+## Bước 3: Tạo router cho sản phẩm
 
 -   Mở file [routes/product.js](../../routes/product).
 -   Thêm route cho chức năng thêm sản phẩm.
@@ -101,7 +101,7 @@ router.post("/products", createProduct);
 export default router;
 ```
 
-### Bước 4: Nhúng router vào ứng dụng
+## Bước 4: Nhúng router vào ứng dụng
 
 -   Mở file [app.js](../../app.js).
 -   Nhúng router sản phẩm vào ứng dụng.
@@ -128,12 +128,12 @@ mongoose.connect("mongodb://127.0.0.1:27017/workshop");
 export const viteNodeApp = app;
 ```
 
-### Bước 5: Kiểm tra chức năng
+## Bước 5: Kiểm tra chức năng
 
 -   Chạy lệnh `npm run dev` để khởi động server.
 -   Sử dụng `Postman` hoặc công cụ tương tự để gửi yêu cầu `POST` tới endpoint `/api/products` để kiểm tra chức năng thêm sản phẩm.
 
-#### Ví dụ yêu cầu thêm sản phẩm
+### Ví dụ yêu cầu thêm sản phẩm
 
 Gửi yêu cầu POST tới `http://localhost:3000/api/products` với dữ liệu JSON như sau:
 

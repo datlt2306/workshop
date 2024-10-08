@@ -1,3 +1,4 @@
+import { StatusCodes } from "http-status-codes";
 import Attribute from "../models/attribute";
 
 // Tạo một thuộc tính mới
@@ -5,9 +6,9 @@ export const createAttribute = async (req, res) => {
     try {
         const attribute = new Attribute(req.body);
         await attribute.save();
-        res.status(201).json(attribute);
+        res.status(StatusCodes.CREATED).json(attribute);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
 };
 
@@ -15,9 +16,9 @@ export const createAttribute = async (req, res) => {
 export const getAttributes = async (req, res) => {
     try {
         const attributes = await Attribute.find();
-        res.status(200).json(attributes);
+        res.status(StatusCodes.OK).json(attributes);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
     }
 };
 
@@ -26,11 +27,11 @@ export const getAttributeById = async (req, res) => {
     try {
         const attribute = await Attribute.findById(req.params.id);
         if (!attribute) {
-            return res.status(404).json({ message: "Attribute not found" });
+            return res.status(StatusCodes.NOT_FOUND).json({ message: "Attribute not found" });
         }
-        res.status(200).json(attribute);
+        res.status(StatusCodes.OK).json(attribute);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
     }
 };
 
@@ -42,11 +43,11 @@ export const updateAttribute = async (req, res) => {
             runValidators: true,
         });
         if (!attribute) {
-            return res.status(404).json({ message: "Attribute not found" });
+            return res.status(StatusCodes.NOT_FOUND).json({ message: "Attribute not found" });
         }
-        res.status(200).json(attribute);
+        res.status(StatusCodes.OK).json(attribute);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
 };
 
@@ -55,10 +56,10 @@ export const deleteAttribute = async (req, res) => {
     try {
         const attribute = await Attribute.findByIdAndDelete(req.params.id);
         if (!attribute) {
-            return res.status(404).json({ message: "Attribute not found" });
+            return res.status(StatusCodes.NOT_FOUND).json({ message: "Attribute not found" });
         }
-        res.status(200).json({ message: "Attribute deleted successfully" });
+        res.status(StatusCodes.OK).json({ message: "Attribute deleted successfully" });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
     }
 };

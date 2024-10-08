@@ -2,6 +2,7 @@ import User from "../models/user";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { SMTPClient } from "emailjs";
+import { StatusCodes } from "http-status-codes";
 
 // Đăng ký người dùng mới
 export const signup = async (req, res) => {
@@ -10,16 +11,18 @@ export const signup = async (req, res) => {
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: "Email đã được sử dụng" });
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: "Email đã được sử dụng" });
         }
         // Kiểm tra xem có người dùng nào trong hệ thống chưa
         const userCount = await User.countDocuments({});
         const role = userCount === 0 ? "admin" : "customer";
         console.log({ username, email, password, role });
         const user = await User.create({ username, email, password, role });
-        res.status(201).json({ message: "Đăng ký thành công" });
+        res.status(StatusCodes.CREATED).json({ message: "Đăng ký thành công" });
     } catch (error) {
-        res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình đăng ký" });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: "Đã xảy ra lỗi trong quá trình đăng ký",
+        });
     }
 };
 
@@ -29,54 +32,31 @@ export const signin = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ message: "Người dùng không tồn tại" });
+            return res.status(StatusCodes.NOT_FOUND).json({ message: "Người dùng không tồn tại" });
         }
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            return res.status(400).json({ message: "Mật khẩu không đúng" });
+            return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Mật khẩu không đúng" });
         }
-
-        // Cập nhật lastLogin
-        user.lastLogin = new Date();
-        await user.save();
-
-        const token = jwt.sign({ id: user._id, role: user.role }, import.meta.env.VITE_JWT_SECRET, {
+        // Tạo token JWT
+        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
             expiresIn: "1h",
         });
-        user.password = undefined;
-        user.role = undefined;
-        user.status = undefined;
-        res.status(200).json({ token, user });
+        res.status(StatusCodes.OK).json({ token });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: "Đã xảy ra lỗi trong quá trình đăng nhập",
+        });
     }
 };
 
-// Lấy thông tin người dùng hiện tại
-export const getCurrentUser = async (req, res) => {
-    try {
-        if (!req.user) {
-            return res.status(401).json({ message: "Không có quyền truy cập" });
-        }
-
-        const user = await User.findById(req.user.id).select("-password");
-        if (!user) {
-            return res.status(404).json({ message: "Người dùng không tồn tại" });
-        }
-        res.status(200).json(user);
-    } catch (error) {
-        res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình lấy thông tin người dùng" });
-    }
-};
-
-// Yêu cầu đặt lại mật khẩu
 // Yêu cầu đặt lại mật khẩu
 export const requestPasswordReset = async (req, res) => {
     try {
         const { email } = req.body;
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ message: "Người dùng không tồn tại" });
+            return res.status(StatusCodes.NOT_FOUND).json({ message: "Người dùng không tồn tại" });
         }
 
         // Tạo token đặt lại mật khẩu
@@ -106,12 +86,12 @@ export const requestPasswordReset = async (req, res) => {
 
         client.send(message, (err, message) => {
             if (err) {
-                return res.status(500).json({ message: err.message });
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
             }
-            res.status(200).json({ message: "Email đặt lại mật khẩu đã được gửi" });
+            res.status(StatusCodes.OK).json({ message: "Email đặt lại mật khẩu đã được gửi" });
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
     }
 };
 
@@ -126,7 +106,7 @@ export const resetPassword = async (req, res) => {
 
         if (!user) {
             return res
-                .status(400)
+                .status(StatusCodes.BAD_REQUEST)
                 .json({ message: "Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn" });
         }
 
@@ -135,8 +115,8 @@ export const resetPassword = async (req, res) => {
         user.resetPasswordExpires = undefined;
         await user.save();
 
-        res.status(200).json({ message: "Mật khẩu đã được đặt lại thành công" });
+        res.status(StatusCodes.OK).json({ message: "Mật khẩu đã được đặt lại thành công" });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
     }
 };
