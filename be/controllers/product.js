@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import Attribute from "../models/attribute";
 import Product from "../models/product";
 import { productSchema } from "../utils/validators/product";
-
+import slugify from "slugify";
 export const createProduct = async (req, res) => {
     try {
         // Xác thực dữ liệu đầu vào
@@ -11,7 +11,7 @@ export const createProduct = async (req, res) => {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: error.details[0].message });
         }
 
-        const { name, attributes } = value;
+        const { name } = value;
 
         // Kiểm tra xem sản phẩm với tên này đã tồn tại chưa
         const existingProduct = await Product.findOne({ name });
@@ -21,12 +21,12 @@ export const createProduct = async (req, res) => {
                 .json({ message: "Sản phẩm với tên này đã tồn tại" });
         }
 
-        const productAttributes = await Attribute.find({ _id: { $in: attributes } });
-        if (productAttributes.length !== attributes.length) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .json({ message: "Một hoặc nhiều thuộc tính không tìm thấy" });
-        }
+        // const productAttributes = await Attribute.find({ _id: { $in: attributes } });
+        // if (productAttributes.length !== attributes.length) {
+        //     return res
+        //         .status(StatusCodes.BAD_REQUEST)
+        //         .json({ message: "Một hoặc nhiều thuộc tính không tìm thấy" });
+        // }
 
         // Tạo slug từ tên sản phẩm
         const slug = slugify(name, { lower: true });

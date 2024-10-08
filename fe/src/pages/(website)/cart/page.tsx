@@ -1,4 +1,3 @@
-import React from "react";
 import { List, Skeleton } from "antd";
 import { useCart } from "../../../context/CartContext";
 import CartItem from "./_components/CartItem";

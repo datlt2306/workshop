@@ -1,52 +1,86 @@
-import User from "../models/user";
-import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { SMTPClient } from "emailjs";
 import { StatusCodes } from "http-status-codes";
+import Joi from "joi";
+import jwt from "jsonwebtoken";
+import User from "../models/user";
+// Joi schemas for validation
+const signupSchema = Joi.object({
+    username: Joi.string().min(3).required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(6).required(),
+    confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
+        "any.only": "Mật khẩu không khớp",
+    }),
+});
 
-// Đăng ký người dùng mới
+const signinSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(6).required(),
+});
+// Controller để đăng ký người dùng mới
 export const signup = async (req, res) => {
     try {
+        // Validate request body
+        const { error } = signupSchema.validate(req.body);
+        if (error) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: error.details[0].message });
+        }
+
         const { username, email, password } = req.body;
 
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ message: "Email đã được sử dụng" });
-        }
-        // Kiểm tra xem có người dùng nào trong hệ thống chưa
-        const userCount = await User.countDocuments({});
-        const role = userCount === 0 ? "admin" : "customer";
-        console.log({ username, email, password, role });
-        const user = await User.create({ username, email, password, role });
+        // Hash mật khẩu trước khi lưu
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        await User.create({
+            username,
+            email,
+            password: hashedPassword,
+        });
         res.status(StatusCodes.CREATED).json({ message: "Đăng ký thành công" });
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            message: "Đã xảy ra lỗi trong quá trình đăng ký",
-        });
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
 };
 
-// Đăng nhập người dùng
+// Controller để đăng nhập người dùng
 export const signin = async (req, res) => {
     try {
+        // Validate request body
+        const { error } = signinSchema.validate(req.body);
+        if (error) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: error.details[0].message });
+        }
+
         const { email, password } = req.body;
         const user = await User.findOne({ email });
+
         if (!user) {
-            return res.status(StatusCodes.NOT_FOUND).json({ message: "Người dùng không tồn tại" });
+            return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Email không tồn tại" });
         }
-        const isMatch = await user.comparePassword(password);
+
+        // Kiểm tra mật khẩu
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Mật khẩu không đúng" });
         }
-        // Tạo token JWT
-        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
+
+        // Tạo token và trả về cho người dùng
+        const token = jwt.sign({ _id: user._id }, import.meta.env.VITE_JWT_SECRET, {
             expiresIn: "1h",
         });
-        res.status(StatusCodes.OK).json({ token });
+        // // Sanitize user object
+        const sanitizedUser = {
+            username: user.username,
+            email: user.email,
+            role: user.role,
+        };
+
+        res.status(StatusCodes.OK).json({ token, user: sanitizedUser });
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            message: "Đã xảy ra lỗi trong quá trình đăng nhập",
-        });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
     }
 };
 
@@ -118,5 +152,25 @@ export const resetPassword = async (req, res) => {
         res.status(StatusCodes.OK).json({ message: "Mật khẩu đã được đặt lại thành công" });
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
+    }
+};
+// Lấy thông tin người dùng hiện tại
+export const getCurrentUser = async (req, res) => {
+    try {
+        if (!req.user) {
+            return res
+                .status(StatusCodes.UNAUTHORIZED)
+                .json({ message: "Không có quyền truy cập" });
+        }
+
+        const user = await User.findById(req.user.id).select("-password");
+        if (!user) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: "Người dùng không tồn tại" });
+        }
+        res.status(StatusCodes.OK).json(user);
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: "Đã xảy ra lỗi trong quá trình lấy thông tin người dùng",
+        });
     }
 };
