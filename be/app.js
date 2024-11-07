@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import cors from "cors";
 import morgan from "morgan";
 import productRouter from "./routes/product";
-import cartRouter from "./routes/cart";
 import authRouter from "./routes/auth";
 const app = express();
 app.use(cors());

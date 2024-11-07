@@ -39,15 +39,19 @@ export const createProduct = async (req, res) => {
 };
 
 export const getProductById = async (req, res) => {
+    // /product/1?_embed=category
     try {
-        const { id } = req.params;
-        const { _embed } = req.query;
+        const options = {
+            _embed: req.query._embed ? "category" : "",
+        };
 
-        const product = await Product.findById(id).populate(_embed ? _embed.split(",") : []);
+        const product = await Product.paginate({ _id: req.params.id }, options);
+        // const { id } = req.params;
+        // const { _embed } = req.query;
+        // const product = await Product.findById(id).populate(_embed ? _embed.split(",") : []);
         if (!product) {
             return res.status(StatusCodes.NOT_FOUND).json({ message: "Sản phẩm không tồn tại" });
         }
-
         res.status(StatusCodes.OK).json(product);
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });

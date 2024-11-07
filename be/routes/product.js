@@ -13,7 +13,6 @@ const router = Router();
 router.get("/products", getProducts);
 
 // Route để lấy thông tin chi tiết của một sản phẩm theo ID
-router.get("/products/:id", getProductById);
 
 // Route để thêm một sản phẩm mới
 router.post("/products", createProduct);
