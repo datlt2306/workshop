@@ -1,0 +1,25 @@
+{
+  "products": [
+    {
+      "id": 8,
+      "name": "Product 8",
+      "price": 16.99,
+      "status": "available",
+      "imageUrl": "https://picsum.photos/8/200/300"
+    },
+    {
+      "id": 9,
+      "name": "Product 9",
+      "price": 17.99,
+      "status": "available",
+      "imageUrl": "https://picsum.photos/9/200/300"
+    },
+    {
+      "id": 10,
+      "name": "Product 10",
+      "price": 18.99,
+      "status": "available",
+      "imageUrl": "https://picsum.photos/10/200/300"
+    }
+  ]
+}
