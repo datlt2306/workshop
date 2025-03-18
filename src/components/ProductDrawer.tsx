@@ -1,16 +1,15 @@
-import React, { useEffect } from "react";
-import { Drawer, Button, Form, Input, InputNumber, message, Skeleton } from "antd";
+import { Button, Drawer, Form, Input, InputNumber, message, Skeleton } from "antd";
 import useCreate from "../hooks/useCreate";
-import useUpdate from "../hooks/useUpdate";
 import useOne from "../hooks/useOne";
+import useUpdate from "../hooks/useUpdate";
 
 type ProductFormDrawerProps = {
-    visible: boolean;
+    open: boolean;
     onClose: () => void;
     productId?: number;
 };
 
-const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({ visible, onClose, productId }) => {
+const ProductFormDrawer = ({ open, onClose, productId }: ProductFormDrawerProps) => {
     const [form] = Form.useForm();
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -25,14 +24,6 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({ visible, onClose,
         resource: "products",
         id: productId ?? 0,
     });
-
-    useEffect(() => {
-        if (productId && data) {
-            form.setFieldsValue(data.data);
-        } else {
-            form.resetFields();
-        }
-    }, [productId, data, form]);
 
     const onSubmit = (formData: any) => {
         if (productId) {
@@ -57,19 +48,19 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({ visible, onClose,
     return (
         <Drawer
             title={productId ? "Sửa sản phẩm" : "Thêm sản phẩm"}
-            width={720}
+            width={378}
             onClose={onClose}
-            visible={visible}
-            bodyStyle={{ paddingBottom: 80 }}
+            open={open}
         >
             <Skeleton loading={isLoading && !!productId} active>
-                <Form form={form} layout="vertical" onFinish={onSubmit}>
+                <Form form={form} layout="vertical" onFinish={onSubmit} initialValues={data?.data}>
                     <Form.Item label="Tên sản phẩm" name="name">
                         <Input />
                     </Form.Item>
                     <Form.Item label="Giá sản phẩm" name="price">
                         <InputNumber />
                     </Form.Item>
+                    x
                     <Form.Item label="Mô tả" name="description">
                         <Input.TextArea />
                     </Form.Item>

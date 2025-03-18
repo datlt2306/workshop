@@ -1,12 +1,11 @@
-import React, { useState } from "react";
 import { Button, Popconfirm, Skeleton, Table, Tag } from "antd";
-import useList from "../../hooks/useList";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import ProductFormDrawer from "../../components/ProductDrawer";
+import useList from "../../hooks/useList";
 
 const ProductListPage = () => {
     const { data, isLoading, error, isError } = useList({ resource: "products" });
-    const [drawerVisible, setDrawerVisible] = useState(false);
+    const [open, setOpen] = useState(false);
     const [editingProductId, setEditingProductId] = useState<number | null>(null);
 
     const dataSource = data?.data.map((product: any) => ({
@@ -58,7 +57,7 @@ const ProductListPage = () => {
                             type="primary"
                             onClick={() => {
                                 setEditingProductId(item.id);
-                                setDrawerVisible(true);
+                                setOpen(true);
                             }}
                         >
                             Sửa
@@ -85,7 +84,7 @@ const ProductListPage = () => {
                     type="primary"
                     onClick={() => {
                         setEditingProductId(null);
-                        setDrawerVisible(true);
+                        setOpen(true);
                     }}
                 >
                     Thêm sản phẩm
@@ -94,8 +93,8 @@ const ProductListPage = () => {
 
             <Table dataSource={dataSource} columns={columns} />
             <ProductFormDrawer
-                visible={drawerVisible}
-                onClose={() => setDrawerVisible(false)}
+                open={open}
+                onClose={() => setOpen(false)}
                 productId={editingProductId ?? undefined}
             />
         </div>
