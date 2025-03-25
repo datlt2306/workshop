@@ -1,0 +1,53 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "Sản phẩm 1",
+            "price": 200,
+            "quantity": 10,
+            "category": "2",
+            "description": "Mô tả",
+            "status": true,
+            "type": "simple",
+            "parent": 0
+        }
+    ],
+    "variants": [],
+    "carts": [
+        {
+            "id": 1,
+            "userId": 1,
+            "Items": [
+                {
+                    "productId": "1",
+                    "quantity": 20
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "userId": 2,
+            "Items": [
+                {
+                    "productId": "1",
+                    "quantity": 200
+                }
+            ]
+        }
+    ],
+    "orders": [],
+    "users": [
+        {
+            "email": "admin@gmail.com",
+            "password": "$2a$10$nJ4bTNhXRF7pd2/8ZbEoY.5m7FjLj3ZVwj49xd0N1l/H818ISdhY6",
+            "confirm": "admin@gmail.com",
+            "id": 1
+        },
+        {
+            "email": "member@gmail.com",
+            "password": "$2a$10$gl1RlJCIfDgwf9H80YsSHOFdmBcsntK0rRSPzcJl80OUtrqLxYsca",
+            "confirm": "member@gmail.com",
+            "id": 2
+        }
+    ]
+}
