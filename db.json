@@ -8,48 +8,15 @@
   ],
   "products": [
     {
-      "id": 1,
-      "name": "Premium Wireless Headphones",
-      "description": "High-quality wireless headphones with noise cancellation and long battery life.",
-      "price": 129.99,
-      "inventory": 45,
-      "categoryId": 1,
-      "status": "in-stock",
-      "featured": true,
-      "thumbnail": "/placeholder.svg"
-    },
-    {
-      "id": 2,
-      "name": "Smart Fitness Tracker",
-      "description": "Track your fitness goals with this advanced smart fitness tracker.",
-      "price": 79.99,
-      "inventory": 30,
-      "categoryId": 2,
-      "status": "in-stock",
-      "featured": true,
-      "thumbnail": "/placeholder.svg"
-    },
-    {
-      "id": 3,
-      "name": "Portable Bluetooth Speaker",
-      "description": "Compact and powerful Bluetooth speaker with waterproof design.",
-      "price": 49.99,
-      "inventory": 20,
-      "categoryId": 1,
-      "status": "in-stock",
-      "featured": false,
-      "thumbnail": "/placeholder.svg"
-    },
-    {
       "id": 4,
       "name": "Ultra HD Smart TV",
-      "description": "Experience stunning visuals with this Ultra HD Smart TV.",
+      "description": "Experience stunning visuals with this Ultra HD Smart TV. \n![image](https://picsum.photos/200/300)",
       "price": 599.99,
       "inventory": 15,
       "categoryId": 3,
       "status": "in-stock",
       "featured": true,
-      "thumbnail": "/placeholder.svg"
+      "thumbnail": "https://picsum.photos/id/240/200/300"
     },
     {
       "id": 5,
@@ -60,7 +27,7 @@
       "categoryId": 4,
       "status": "low-stock",
       "featured": true,
-      "thumbnail": "/placeholder.svg"
+      "thumbnail": "https://picsum.photos/id/241/200/300"
     },
     {
       "id": 6,
@@ -71,7 +38,7 @@
       "categoryId": 5,
       "status": "in-stock",
       "featured": false,
-      "thumbnail": "/placeholder.svg"
+      "thumbnail": "https://picsum.photos/id/242/200/300"
     },
     {
       "id": 7,
@@ -82,7 +49,7 @@
       "categoryId": 6,
       "status": "in-stock",
       "featured": false,
-      "thumbnail": "/placeholder.svg"
+      "thumbnail": "https://picsum.photos/id/243/200/300"
     },
     {
       "id": 8,
@@ -93,7 +60,7 @@
       "categoryId": 7,
       "status": "in-stock",
       "featured": false,
-      "thumbnail": "/placeholder.svg"
+      "thumbnail": "https://picsum.photos/id/244/200/300"
     },
     {
       "id": 9,
@@ -104,7 +71,7 @@
       "categoryId": 7,
       "status": "in-stock",
       "featured": false,
-      "thumbnail": "/placeholder.svg"
+      "thumbnail": "https://picsum.photos/id/245/200/300"
     },
     {
       "id": 10,
@@ -115,18 +82,7 @@
       "categoryId": 8,
       "status": "in-stock",
       "featured": false,
-      "thumbnail": "/placeholder.svg"
-    },
-    {
-      "id": 11,
-      "name": "Wireless Earbuds",
-      "description": "Compact wireless earbuds with charging case and excellent sound quality.",
-      "price": 69.99,
-      "inventory": 55,
-      "categoryId": 1,
-      "status": "in-stock",
-      "featured": false,
-      "thumbnail": "/placeholder.svg"
+      "thumbnail": "https://picsum.photos/id/246/200/300"
     },
     {
       "id": 12,
@@ -137,22 +93,10 @@
       "categoryId": 3,
       "status": "in-stock",
       "featured": false,
-      "thumbnail": "/placeholder.svg"
+      "thumbnail": "https://picsum.photos/id/248/200/300"
     }
   ],
   "categories": [
-    {
-      "id": 1,
-      "name": "Audio",
-      "description": "Headphones, speakers, and audio accessories",
-      "productCount": 3
-    },
-    {
-      "id": 2,
-      "name": "Wearables",
-      "description": "Smart watches and fitness trackers",
-      "productCount": 1
-    },
     {
       "id": 3,
       "name": "Electronics",

@@ -6,8 +6,8 @@ import { Show } from "@refinedev/antd";
 const { Title, Text } = Typography;
 
 export const ProductShow: React.FC = () => {
-    const { queryResult } = useShow();
-    const { data, isLoading } = queryResult;
+    const { query } = useShow();
+    const { data, isLoading } = query;
     const record = data?.data;
 
     const { data: categoryData, isLoading: categoryIsLoading } = useOne({

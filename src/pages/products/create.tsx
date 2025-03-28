@@ -4,6 +4,7 @@ import { Create, useForm, useSelect } from "@refinedev/antd";
 import { Form, Input, InputNumber, Select, Upload, Button, Switch } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useState } from "react";
+import MDEditor from "@uiw/react-md-editor";
 
 export const ProductCreate: React.FC = () => {
     const { formProps, saveButtonProps } = useForm();
@@ -55,7 +56,8 @@ export const ProductCreate: React.FC = () => {
                         },
                     ]}
                 >
-                    <Input.TextArea rows={4} />
+                    <MDEditor data-color-mode="light" />
+                    {/* <Input.TextArea rows={4} /> */}
                 </Form.Item>
                 <Form.Item
                     label="Price"
@@ -143,12 +145,7 @@ export const ProductCreate: React.FC = () => {
                 >
                     <Switch />
                 </Form.Item>
-                <Form.Item
-                    name="thumbnail"
-                    label="Thumbnail"
-                    valuePropName="fileList"
-                    getValueFromEvent={normFile}
-                >
+                <Form.Item label="Thumbnail" valuePropName="fileList" getValueFromEvent={normFile}>
                     <Upload
                         name="thumbnail"
                         listType="picture-card"
