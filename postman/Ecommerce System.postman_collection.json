@@ -1,0 +1,2391 @@
+{
+    "info": {
+        "_postman_id": "a7e5f8d6-3b2c-4e5d-9f8a-1c2b3d4e5f6a",
+        "name": "Ecommerce System",
+        "description": "Bộ sưu tập API đầy đủ để kiểm thử hệ thống backend thương mại điện tử",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "22685679"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "description": "Các endpoint cho xác thực người dùng và quản lý tài khoản",
+            "item": [
+                {
+                    "name": "Đăng ký",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Nguyễn Văn A\",\n    \"email\": \"admin@example.com\",\n    \"password\": \"123456\",\n    \"phone\": \"0987654321\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/signup",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "signup"]
+                        },
+                        "description": "Đăng ký tài khoản người dùng mới"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Đăng nhập",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "// Trích xuất và lưu token từ phản hồi",
+                                    "var jsonData = pm.response.json();",
+                                    "pm.test(\"Mã trạng thái là 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Xác thực thành công\", function () {",
+                                    "    pm.expect(jsonData).to.have.property('token');",
+                                    "    pm.expect(jsonData).to.have.property('user');",
+                                    "});",
+                                    "",
+                                    "if (jsonData.token) {",
+                                    "    // Đặt token trong biến môi trường",
+                                    "    pm.environment.set(\"authToken\", jsonData.token);",
+                                    "    // Đồng thời đặt token trong biến bộ sưu tập để dự phòng",
+                                    "    pm.collectionVariables.set(\"authToken\", jsonData.token);",
+                                    "    console.log(\"✅ Token xác thực đã được lưu vào biến môi trường và biến bộ sưu tập\");",
+                                    "    ",
+                                    "    // Đặt ID người dùng để sử dụng lại trong các yêu cầu khác",
+                                    "    if (jsonData.user && jsonData.user._id) {",
+                                    "        pm.environment.set(\"userId\", jsonData.user._id);",
+                                    "        console.log(\"✅ ID người dùng đã được lưu vào môi trường\");",
+                                    "    }",
+                                    "} else {",
+                                    "    console.error(\"❌ Không tìm thấy token trong phản hồi\");",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"123456\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "login"]
+                        },
+                        "description": "Đăng nhập bằng email và mật khẩu để nhận token xác thực"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy thông tin người dùng hiện tại",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "me"]
+                        },
+                        "description": "Lấy thông tin hồ sơ của người dùng đã xác thực hiện tại"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật mật khẩu",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"passwordCurrent\": \"password123\",\n    \"password\": \"newpassword123\",\n    \"passwordConfirm\": \"newpassword123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/update-password",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "update-password"]
+                        },
+                        "description": "Cập nhật mật khẩu của người dùng hiện tại"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Quên mật khẩu",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"nguyenvana@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/forgot-password",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "forgot-password"]
+                        },
+                        "description": "Yêu cầu token đặt lại mật khẩu"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Đặt lại mật khẩu",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"password\": \"newpassword123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/reset-password/:token",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "reset-password", ":token"],
+                            "variable": [
+                                {
+                                    "key": "token",
+                                    "value": "reset-token-here"
+                                }
+                            ]
+                        },
+                        "description": "Đặt lại mật khẩu bằng token nhận được qua email"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Users",
+            "description": "Các endpoint cho quản lý người dùng",
+            "item": [
+                {
+                    "name": "Lấy tất cả người dùng (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users"]
+                        },
+                        "description": "Lấy danh sách tất cả người dùng (chỉ dành cho admin)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy người dùng theo ID (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "user-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thông tin chi tiết của một người dùng cụ thể theo ID (chỉ dành cho admin)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Tạo người dùng (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Nguyễn Văn B\",\n    \"email\": \"nguyenvanb@example.com\",\n    \"password\": \"password123\",\n    \"phone\": \"0987654322\",\n    \"role\": \"customer\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users"]
+                        },
+                        "description": "Tạo người dùng mới (chỉ dành cho admin)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật người dùng (Admin)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Nguyễn Văn B Cập Nhật\",\n    \"phone\": \"0987654323\",\n    \"role\": \"staff\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "user-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật thông tin người dùng (chỉ dành cho admin)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa người dùng (Admin)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "user-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Xóa người dùng (chỉ dành cho admin)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật hồ sơ người dùng hiện tại",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Tên Đã Cập Nhật\",\n    \"phone\": \"0987654324\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users/update-me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users", "update-me"]
+                        },
+                        "description": "Cập nhật hồ sơ của người dùng hiện tại"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy địa chỉ người dùng",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/addresses",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users", "addresses"]
+                        },
+                        "description": "Lấy danh sách địa chỉ của người dùng hiện tại"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Thêm địa chỉ người dùng",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"fullName\": \"Nguyễn Văn A\",\n    \"phone\": \"0987654321\",\n    \"province\": \"Hà Nội\",\n    \"district\": \"Cầu Giấy\",\n    \"ward\": \"Dịch Vọng\",\n    \"streetAddress\": \"Số 123 Đường Xuân Thủy\",\n    \"isDefault\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users/addresses",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users", "addresses"]
+                        },
+                        "description": "Thêm địa chỉ mới cho người dùng hiện tại"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật địa chỉ người dùng",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"streetAddress\": \"Số 456 Đường Cầu Giấy\",\n    \"district\": \"Cầu Giấy\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users/addresses/:addressId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users", "addresses", ":addressId"],
+                            "variable": [
+                                {
+                                    "key": "addressId",
+                                    "value": "address-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật địa chỉ hiện có"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa địa chỉ người dùng",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/addresses/:addressId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users", "addresses", ":addressId"],
+                            "variable": [
+                                {
+                                    "key": "addressId",
+                                    "value": "address-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Xóa địa chỉ"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Đặt địa chỉ mặc định",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/addresses/:addressId/set-default",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users", "addresses", ":addressId", "set-default"],
+                            "variable": [
+                                {
+                                    "key": "addressId",
+                                    "value": "address-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Đặt một địa chỉ làm địa chỉ mặc định"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Đếm người dùng theo vai trò",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/count?role=customer",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users", "count"],
+                            "query": [
+                                {
+                                    "key": "role",
+                                    "value": "customer"
+                                }
+                            ]
+                        },
+                        "description": "Đếm số lượng người dùng theo vai trò (chỉ dành cho admin)"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Products",
+            "description": "Các endpoint cho quản lý sản phẩm",
+            "item": [
+                {
+                    "name": "Lấy tất cả sản phẩm",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/products?page=1&limit=10&sort=-createdAt&category=category-id&q=search-term",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "sort",
+                                    "value": "-createdAt"
+                                },
+                                {
+                                    "key": "category",
+                                    "value": "category-id"
+                                },
+                                {
+                                    "key": "q",
+                                    "value": "search-term"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách sản phẩm với các tùy chọn lọc"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy sản phẩm theo ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/products/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "product-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thông tin chi tiết của một sản phẩm cụ thể theo ID"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy sản phẩm theo Slug",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/products/slug/:slug",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products", "slug", ":slug"],
+                            "variable": [
+                                {
+                                    "key": "slug",
+                                    "value": "product-slug-here"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thông tin chi tiết của một sản phẩm cụ thể theo slug"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Tạo sản phẩm (Admin/Staff)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Áo Thun Nam\",\n    \"description\": \"Áo thun nam chất liệu cotton cao cấp\",\n    \"price\": 299000,\n    \"discountPrice\": 249000,\n    \"category\": \"category-id-here\",\n    \"stock\": 100,\n    \"sku\": \"ATN-001\",\n    \"images\": [\"image1.jpg\", \"image2.jpg\"],\n    \"status\": \"published\",\n    \"featured\": true,\n    \"isVariant\": false\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/products",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products"]
+                        },
+                        "description": "Tạo sản phẩm mới (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Tạo sản phẩm có biến thể (Admin/Staff)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Áo Thun Nam Có Biến Thể\",\n    \"description\": \"Áo thun nam chất liệu cotton cao cấp nhiều màu sắc và kích cỡ\",\n    \"price\": 299000,\n    \"discountPrice\": 249000,\n    \"category\": \"category-id-here\",\n    \"sku\": \"ATN-VAR-001\",\n    \"images\": [\"image1.jpg\", \"image2.jpg\"],\n    \"status\": \"published\",\n    \"featured\": true,\n    \"isVariant\": true,\n    \"attributes\": [\n        {\n            \"name\": \"Kích cỡ\",\n            \"values\": [\"S\", \"M\", \"L\", \"XL\"]\n        },\n        {\n            \"name\": \"Màu sắc\",\n            \"values\": [\"Đen\", \"Trắng\", \"Xanh\"]\n        }\n    ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/products",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products"]
+                        },
+                        "description": "Tạo sản phẩm mới có biến thể (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật sản phẩm (Admin/Staff)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Áo Thun Nam Cao Cấp\",\n    \"price\": 329000,\n    \"discountPrice\": 279000,\n    \"stock\": 75,\n    \"featured\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/products/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "product-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật thông tin sản phẩm (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa sản phẩm (Admin)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/products/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "product-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Xóa sản phẩm (chỉ dành cho admin)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy biến thể sản phẩm",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/products/:productId/variants",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products", ":productId", "variants"],
+                            "variable": [
+                                {
+                                    "key": "productId",
+                                    "value": "product-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Lấy tất cả biến thể của một sản phẩm"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy biến thể theo ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/products/variants/:variantId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products", "variants", ":variantId"],
+                            "variable": [
+                                {
+                                    "key": "variantId",
+                                    "value": "variant-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thông tin chi tiết của một biến thể sản phẩm cụ thể"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Tạo biến thể sản phẩm (Admin/Staff)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"attributeValues\": [\n        {\n            \"name\": \"Kích cỡ\",\n            \"value\": \"XL\"\n        },\n        {\n            \"name\": \"Màu sắc\",\n            \"value\": \"Đỏ\"\n        }\n    ],\n    \"sku\": \"ATN-VAR-001-XL-RED\",\n    \"price\": 329000,\n    \"discountPrice\": 279000,\n    \"stock\": 30,\n    \"images\": [\"image-xl-red-1.jpg\", \"image-xl-red-2.jpg\"],\n    \"status\": \"active\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/products/:productId/variants",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products", ":productId", "variants"],
+                            "variable": [
+                                {
+                                    "key": "productId",
+                                    "value": "product-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Tạo biến thể mới cho sản phẩm (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật biến thể sản phẩm (Admin/Staff)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"price\": 349000,\n    \"discountPrice\": 299000,\n    \"stock\": 25,\n    \"status\": \"active\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/products/variants/:variantId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products", "variants", ":variantId"],
+                            "variable": [
+                                {
+                                    "key": "variantId",
+                                    "value": "variant-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật thông tin biến thể sản phẩm (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa biến thể sản phẩm (Admin/Staff)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/products/variants/:variantId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products", "variants", ":variantId"],
+                            "variable": [
+                                {
+                                    "key": "variantId",
+                                    "value": "variant-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Xóa biến thể sản phẩm (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Đặt biến thể mặc định (Admin/Staff)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/products/:productId/default-variant/:variantId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["products", ":productId", "default-variant", ":variantId"],
+                            "variable": [
+                                {
+                                    "key": "productId",
+                                    "value": "product-id-here"
+                                },
+                                {
+                                    "key": "variantId",
+                                    "value": "variant-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Đặt một biến thể làm biến thể mặc định cho sản phẩm (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Categories",
+            "description": "Các endpoint cho quản lý danh mục",
+            "item": [
+                {
+                    "name": "Lấy tất cả danh mục",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/categories?page=1&limit=10&sort=order",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["categories"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "sort",
+                                    "value": "order"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách tất cả danh mục"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy danh mục theo ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/categories/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["categories", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "category-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thông tin chi tiết của một danh mục cụ thể theo ID"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Tạo danh mục (Admin/Staff)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Áo Nam\",\n    \"description\": \"Danh mục áo dành cho nam\",\n    \"parent\": null,\n    \"image\": \"ao-nam.jpg\",\n    \"isFeatured\": true,\n    \"order\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/categories",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["categories"]
+                        },
+                        "description": "Tạo danh mục mới (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Tạo danh mục con (Admin/Staff)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Áo Thun Nam\",\n    \"description\": \"Danh mục áo thun dành cho nam\",\n    \"parent\": \"parent-category-id-here\",\n    \"image\": \"ao-thun-nam.jpg\",\n    \"isFeatured\": false,\n    \"order\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/categories",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["categories"]
+                        },
+                        "description": "Tạo danh mục con mới (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật danh mục (Admin/Staff)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Áo Nam Cao Cấp\",\n    \"description\": \"Danh mục áo cao cấp dành cho nam\",\n    \"isFeatured\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/categories/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["categories", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "category-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật thông tin danh mục (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa danh mục (Admin/Staff)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/categories/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["categories", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "category-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Xóa danh mục (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy danh mục gốc",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/categories/root",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["categories", "root"]
+                        },
+                        "description": "Lấy tất cả danh mục cấp cao nhất (không có danh mục cha)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy danh mục con",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/categories/:id/subcategories",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["categories", ":id", "subcategories"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "parent-category-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Lấy tất cả danh mục con của một danh mục cụ thể"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy cây danh mục",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/categories/tree",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["categories", "tree"]
+                        },
+                        "description": "Lấy cấu trúc phân cấp danh mục hoàn chỉnh dưới dạng cấu trúc cây"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Cart",
+            "description": "Các endpoint cho quản lý giỏ hàng",
+            "item": [
+                {
+                    "name": "Lấy giỏ hàng",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/cart",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["cart"]
+                        },
+                        "description": "Lấy giỏ hàng của người dùng hiện tại"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Thêm vào giỏ hàng",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"productId\": \"product-id-here\",\n    \"quantity\": 2,\n    \"variantId\": \"variant-id-here\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/cart/add",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["cart", "add"]
+                        },
+                        "description": "Thêm sản phẩm vào giỏ hàng"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật sản phẩm trong giỏ hàng",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"quantity\": 5\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/cart/update/:itemId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["cart", "update", ":itemId"],
+                            "variable": [
+                                {
+                                    "key": "itemId",
+                                    "value": "cart-item-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật số lượng của một sản phẩm trong giỏ hàng"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa sản phẩm khỏi giỏ hàng",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/cart/remove/:itemId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["cart", "remove", ":itemId"],
+                            "variable": [
+                                {
+                                    "key": "itemId",
+                                    "value": "cart-item-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Xóa một sản phẩm khỏi giỏ hàng"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa toàn bộ giỏ hàng",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/cart/clear",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["cart", "clear"]
+                        },
+                        "description": "Xóa tất cả sản phẩm khỏi giỏ hàng"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Áp dụng voucher",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"code\": \"SUMMER2023\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/cart/voucher",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["cart", "voucher"]
+                        },
+                        "description": "Áp dụng mã giảm giá vào giỏ hàng"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa voucher",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/cart/voucher",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["cart", "voucher"]
+                        },
+                        "description": "Xóa mã giảm giá đã áp dụng khỏi giỏ hàng"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Orders",
+            "description": "Các endpoint cho quản lý đơn hàng",
+            "item": [
+                {
+                    "name": "Tạo đơn hàng",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"shippingAddress\": {\n        \"fullName\": \"Nguyễn Văn A\",\n        \"phone\": \"0987654321\",\n        \"province\": \"Hà Nội\",\n        \"district\": \"Cầu Giấy\",\n        \"ward\": \"Dịch Vọng\",\n        \"streetAddress\": \"Số 123 Đường Xuân Thủy\"\n    },\n    \"paymentMethod\": \"cod\",\n    \"note\": \"Giao hàng vào buổi tối\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/orders",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["orders"]
+                        },
+                        "description": "Tạo đơn hàng mới từ giỏ hàng"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy đơn hàng của tôi",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/my-orders?page=1&limit=10&status=pending",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["orders", "my-orders"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "pending"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách đơn hàng của người dùng hiện tại"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy đơn hàng theo ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["orders", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "order-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thông tin chi tiết của một đơn hàng cụ thể theo ID"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy tất cả đơn hàng (Admin/Staff)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders?status=pending&page=1&limit=10&sort=-createdAt",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["orders"],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "pending"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "sort",
+                                    "value": "-createdAt"
+                                }
+                            ]
+                        },
+                        "description": "Lấy tất cả đơn hàng (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật trạng thái đơn hàng (Admin/Staff)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"status\": \"processing\",\n    \"note\": \"Đơn hàng đang được xử lý\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/:id/status",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["orders", ":id", "status"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "order-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật trạng thái của đơn hàng (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Hủy đơn hàng",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"cancelReason\": \"Tôi đã đổi ý\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/:id/cancel",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["orders", ":id", "cancel"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "order-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Hủy đơn hàng (chỉ có thể hủy đơn hàng đang ở trạng thái chờ xác nhận hoặc đang xử lý)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Tạo payment intent",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"paymentProcessor\": \"stripe\",\n    \"returnUrl\": \"https://example.com/payment-success\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/:id/payment-intent",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["orders", ":id", "payment-intent"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "order-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Tạo payment intent cho đơn hàng"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xử lý thanh toán thành công",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"paymentIntentId\": \"pi_123456789\",\n    \"paymentMethod\": \"credit_card\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/:id/payment-success",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["orders", ":id", "payment-success"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "order-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Xử lý thanh toán thành công cho đơn hàng"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy thống kê đơn hàng (Admin/Staff)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/stats/overview",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["orders", "stats", "overview"]
+                        },
+                        "description": "Lấy thống kê tổng quan về đơn hàng (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy thống kê đơn hàng theo khoảng thời gian (Admin/Staff)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/stats/by-date-range?startDate=2023-01-01&endDate=2023-12-31",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["orders", "stats", "by-date-range"],
+                            "query": [
+                                {
+                                    "key": "startDate",
+                                    "value": "2023-01-01"
+                                },
+                                {
+                                    "key": "endDate",
+                                    "value": "2023-12-31"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thống kê đơn hàng theo khoảng thời gian (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Vouchers",
+            "description": "Các endpoint cho quản lý voucher",
+            "item": [
+                {
+                    "name": "Lấy voucher đang hoạt động",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/vouchers/active",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["vouchers", "active"]
+                        },
+                        "description": "Lấy tất cả voucher đang hoạt động cho người dùng hiện tại"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy voucher theo mã",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/vouchers/code/:code",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["vouchers", "code", ":code"],
+                            "variable": [
+                                {
+                                    "key": "code",
+                                    "value": "SUMMER2023"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thông tin voucher theo mã"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy tất cả voucher (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/vouchers",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["vouchers"]
+                        },
+                        "description": "Lấy tất cả voucher (chỉ dành cho admin)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Tạo voucher (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"code\": \"SUMMER2023\",\n    \"type\": \"percentage\",\n    \"amount\": 20,\n    \"minAmount\": 100000,\n    \"startDate\": \"2023-06-01T00:00:00.000Z\",\n    \"endDate\": \"2023-08-31T23:59:59.999Z\",\n    \"maxUses\": 1000,\n    \"maxUsesPerUser\": 1,\n    \"isActive\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/vouchers",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["vouchers"]
+                        },
+                        "description": "Tạo voucher mới (chỉ dành cho admin)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật voucher (Admin)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"amount\": 25,\n    \"endDate\": \"2023-09-30T23:59:59.999Z\",\n    \"isActive\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/vouchers/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["vouchers", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "voucher-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật thông tin voucher (chỉ dành cho admin)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa voucher (Admin)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/vouchers/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["vouchers", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "voucher-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Xóa voucher (chỉ dành cho admin)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Vô hiệu hóa voucher (Admin)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/vouchers/:id/deactivate",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["vouchers", ":id", "deactivate"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "voucher-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Vô hiệu hóa voucher (chỉ dành cho admin)"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Reports",
+            "description": "Các endpoint cho tạo báo cáo (chỉ dành cho admin/staff)",
+            "item": [
+                {
+                    "name": "Lấy thống kê tổng quan",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports/dashboard",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["reports", "dashboard"]
+                        },
+                        "description": "Lấy thống kê tổng quan cho dashboard"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy báo cáo doanh số",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports/sales?startDate=2023-01-01&endDate=2023-12-31&period=month",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["reports", "sales"],
+                            "query": [
+                                {
+                                    "key": "startDate",
+                                    "value": "2023-01-01"
+                                },
+                                {
+                                    "key": "endDate",
+                                    "value": "2023-12-31"
+                                },
+                                {
+                                    "key": "period",
+                                    "value": "month"
+                                }
+                            ]
+                        },
+                        "description": "Lấy báo cáo doanh số với tùy chọn khoảng thời gian và chu kỳ"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy tổng doanh số",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports/sales/total?startDate=2023-01-01&endDate=2023-12-31",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["reports", "sales", "total"],
+                            "query": [
+                                {
+                                    "key": "startDate",
+                                    "value": "2023-01-01"
+                                },
+                                {
+                                    "key": "endDate",
+                                    "value": "2023-12-31"
+                                }
+                            ]
+                        },
+                        "description": "Lấy tổng doanh số cho một khoảng thời gian"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy doanh số theo chu kỳ",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports/sales/by-period?period=day&startDate=2023-01-01&endDate=2023-01-31",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["reports", "sales", "by-period"],
+                            "query": [
+                                {
+                                    "key": "period",
+                                    "value": "day"
+                                },
+                                {
+                                    "key": "startDate",
+                                    "value": "2023-01-01"
+                                },
+                                {
+                                    "key": "endDate",
+                                    "value": "2023-01-31"
+                                }
+                            ]
+                        },
+                        "description": "Lấy doanh số được nhóm theo chu kỳ (ngày, tuần, tháng, năm)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy sản phẩm bán chạy",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports/products/top",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["reports", "products", "top"]
+                        },
+                        "description": "Lấy danh sách sản phẩm bán chạy nhất"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy báo cáo tồn kho",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports/products/inventory",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["reports", "products", "inventory"]
+                        },
+                        "description": "Lấy báo cáo tình trạng tồn kho"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy khách hàng tiềm năng",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports/customers/top",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["reports", "customers", "top"]
+                        },
+                        "description": "Lấy danh sách khách hàng tiềm năng theo giá trị đơn hàng"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy khách hàng mới",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports/customers/new",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["reports", "customers", "new"]
+                        },
+                        "description": "Lấy báo cáo khách hàng mới"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy đơn hàng theo trạng thái",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports/orders/by-status",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["reports", "orders", "by-status"]
+                        },
+                        "description": "Lấy đơn hàng được nhóm theo trạng thái"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy thống kê đơn hàng",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports/orders/stats",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["reports", "orders", "stats"]
+                        },
+                        "description": "Lấy thống kê đơn hàng theo thời gian"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Notifications",
+            "description": "Các endpoint cho quản lý thông báo",
+            "item": [
+                {
+                    "name": "Lấy thông báo của tôi",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/notifications",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["notifications"]
+                        },
+                        "description": "Lấy thông báo của người dùng hiện tại"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Đánh dấu tất cả đã đọc",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/notifications/mark-all-read",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["notifications", "mark-all-read"]
+                        },
+                        "description": "Đánh dấu tất cả thông báo là đã đọc"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Đánh dấu đã đọc",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/notifications/:id/mark-read",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["notifications", ":id", "mark-read"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "notification-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Đánh dấu một thông báo cụ thể là đã đọc"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa thông báo",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/notifications/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["notifications", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "notification-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Xóa một thông báo"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Tạo thông báo (Admin/Staff)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"type\": \"system\",\n    \"title\": \"Thông báo hệ thống\",\n    \"message\": \"Đây là thông báo hệ thống\",\n    \"userId\": \"user-id-here\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/notifications",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["notifications"]
+                        },
+                        "description": "Tạo thông báo mới (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Attributes",
+            "description": "Các endpoint cho quản lý thuộc tính sản phẩm",
+            "item": [
+                {
+                    "name": "Lấy tất cả thuộc tính",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/attributes",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["attributes"]
+                        },
+                        "description": "Lấy danh sách tất cả thuộc tính sản phẩm"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Lấy thuộc tính theo ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/attributes/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["attributes", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "attribute-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thông tin chi tiết của một thuộc tính cụ thể"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Tạo thuộc tính (Admin/Staff)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Kích cỡ\",\n    \"code\": \"size\",\n    \"description\": \"Kích cỡ sản phẩm\",\n    \"values\": [\"S\", \"M\", \"L\", \"XL\", \"XXL\"],\n    \"type\": \"select\",\n    \"isRequired\": true,\n    \"isFilterable\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/attributes",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["attributes"]
+                        },
+                        "description": "Tạo thuộc tính mới (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật thuộc tính (Admin/Staff)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Kích cỡ áo\",\n    \"values\": [\"S\", \"M\", \"L\", \"XL\", \"XXL\", \"XXXL\"],\n    \"isRequired\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/attributes/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["attributes", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "attribute-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật thông tin thuộc tính (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa thuộc tính (Admin/Staff)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/attributes/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["attributes", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "attribute-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Xóa thuộc tính (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Thêm giá trị thuộc tính (Admin/Staff)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"value\": \"XXXXL\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/attributes/:id/values",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["attributes", ":id", "values"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "attribute-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Thêm giá trị mới cho thuộc tính (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cập nhật giá trị thuộc tính (Admin/Staff)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"value\": \"4XL\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/attributes/:id/values/:valueId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["attributes", ":id", "values", ":valueId"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "attribute-id-here"
+                                },
+                                {
+                                    "key": "valueId",
+                                    "value": "value-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật giá trị thuộc tính (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Xóa giá trị thuộc tính (Admin/Staff)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/attributes/:id/values/:valueId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["attributes", ":id", "values", ":valueId"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "attribute-id-here"
+                                },
+                                {
+                                    "key": "valueId",
+                                    "value": "value-id-here"
+                                }
+                            ]
+                        },
+                        "description": "Xóa giá trị thuộc tính (chỉ dành cho admin/staff)"
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "exec": [
+                    "// Script tự động xác thực cho bộ sưu tập",
+                    "// Script này tự động áp dụng token xác thực cho các yêu cầu",
+                    "",
+                    "// Kiểm tra xem yêu cầu hiện tại có yêu cầu xác thực không",
+                    "const authHeader = pm.request.headers.get('Authorization');",
+                    "const requiresAuth = authHeader && authHeader.includes('{{authToken}}');",
+                    "",
+                    "if (requiresAuth) {",
+                    "    // Đầu tiên thử lấy token từ môi trường",
+                    "    let token = pm.environment.get('authToken');",
+                    "    ",
+                    "    // Nếu không tìm thấy trong môi trường, thử biến bộ sưu tập",
+                    "    if (!token) {",
+                    "        token = pm.collectionVariables.get('authToken');",
+                    "    }",
+                    "    ",
+                    "    // Ghi nhật ký thông báo phù hợp",
+                    "    if (!token) {",
+                    "        console.warn('⚠️ Yêu cầu này cần xác thực, nhưng không tìm thấy token. Vui lòng chạy yêu cầu Đăng nhập trước.');",
+                    "    } else {",
+                    "        console.log('🔑 Token xác thực đã được áp dụng cho yêu cầu');",
+                    "    }",
+                    "}"
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "exec": [
+                    "// Script kiểm tra cấp bộ sưu tập",
+                    "// Kiểm tra các mẫu lỗi phổ biến",
+                    "if (pm.response.code === 401) {",
+                    "    console.warn('⚠️ Lỗi xác thực: Token của bạn có thể đã hết hạn. Vui lòng đăng nhập lại.');",
+                    "}",
+                    "",
+                    "if (pm.response.code === 403) {",
+                    "    console.warn('⚠️ Lỗi ủy quyền: Bạn không có quyền truy cập tài nguyên này.');",
+                    "}"
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8080/api/v1",
+            "type": "string"
+        },
+        {
+            "key": "authToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "userId",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}
