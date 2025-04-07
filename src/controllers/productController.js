@@ -1,28 +1,27 @@
-import { Product } from "../models/productModel";
-import { ProductVariant } from "../models/productVariantModel";
-import { Category } from "../models/categoryModel";
+import { Product, ProductVariant, Category } from "../models";
 import { AppError } from "../utils/appError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { APIFeatures } from "../utils/apiFeatures";
+import { StatusCodes } from "http-status-codes";
 
 // Lấy tất cả sản phẩm
 export const getAllProducts = asyncHandler(async (req, res) => {
-    const features = new APIFeatures(Product.find(), req.query)
+    const features = new APIFeatures(Product, req.query)
         .filter()
         .sort()
         .limitFields()
-        .paginate()
         .search()
         .populate();
 
-    const products = await features.query;
-    const total = await Product.countDocuments(features.query._conditions || {});
+    const result = await features.execute();
 
-    res.status(200).json({
-        status: "success",
-        results: products.length,
-        total,
-        data: products,
+    res.status(StatusCodes.OK).json({
+        results: result.data.length,
+        total: result.total,
+        page: result.page,
+        totalPages: result.totalPages,
+        limit: result.limit,
+        data: result.data,
     });
 });
 
@@ -35,7 +34,7 @@ export const getProductById = asyncHandler(async (req, res) => {
         .populate("defaultVariant");
 
     if (!product) {
-        throw new AppError("Không tìm thấy sản phẩm", 404);
+        throw new AppError("Không tìm thấy sản phẩm", StatusCodes.NOT_FOUND);
     }
 
     // Nếu là sản phẩm biến thể, lấy tất cả các biến thể
@@ -43,7 +42,7 @@ export const getProductById = asyncHandler(async (req, res) => {
         await product.populate("variants");
     }
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
         status: "success",
         data: product,
     });
@@ -58,7 +57,7 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
         .populate("defaultVariant");
 
     if (!product) {
-        throw new AppError("Không tìm thấy sản phẩm", 404);
+        throw new AppError("Không tìm thấy sản phẩm", StatusCodes.NOT_FOUND);
     }
 
     // Nếu là sản phẩm biến thể, lấy tất cả các biến thể
@@ -66,7 +65,7 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
         await product.populate("variants");
     }
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
         status: "success",
         data: product,
     });
@@ -92,13 +91,13 @@ export const createProduct = asyncHandler(async (req, res) => {
     // Kiểm tra danh mục tồn tại
     const existingCategory = await Category.findById(category);
     if (!existingCategory) {
-        throw new AppError("Danh mục không tồn tại", 400);
+        throw new AppError("Danh mục không tồn tại", StatusCodes.BAD_REQUEST);
     }
 
     // Kiểm tra SKU đã tồn tại chưa
     const existingSku = await Product.findOne({ sku });
     if (existingSku) {
-        throw new AppError("SKU đã tồn tại", 400);
+        throw new AppError("SKU đã tồn tại", StatusCodes.BAD_REQUEST);
     }
 
     // Tạo sản phẩm mới
@@ -127,12 +126,13 @@ export const createProduct = asyncHandler(async (req, res) => {
         await product.populate("defaultVariant");
     }
 
-    return res.status(201).json({
+    return res.status(StatusCodes.CREATED).json({
         status: "success",
         data: product,
     });
 });
 
+// Cập nhật sản phẩm
 // Cập nhật sản phẩm
 export const updateProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -141,7 +141,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
 
     const product = await Product.findById(id);
     if (!product) {
-        throw new AppError("Không tìm thấy sản phẩm", 404);
+        throw new AppError("Không tìm thấy sản phẩm", StatusCodes.NOT_FOUND);
     }
 
     // Lưu giá cũ để so sánh sau này
@@ -150,17 +150,32 @@ export const updateProduct = asyncHandler(async (req, res) => {
     // Cập nhật thông tin sản phẩm
     if (name) product.name = name;
     if (description) product.description = description;
-    if (price) product.price = price;
-    if (discountPrice !== undefined) product.discountPrice = discountPrice;
+    if (price) {
+        if (price < 0) {
+            throw new AppError("Giá sản phẩm không được âm", StatusCodes.BAD_REQUEST);
+        }
+        product.price = price;
+    }
+    if (discountPrice !== undefined) {
+        if (discountPrice < 0) {
+            throw new AppError("Giá khuyến mãi không được âm", StatusCodes.BAD_REQUEST);
+        }
+        product.discountPrice = discountPrice;
+    }
     if (category) {
         // Kiểm tra danh mục tồn tại
         const existingCategory = await Category.findById(category);
         if (!existingCategory) {
-            throw new AppError("Danh mục không tồn tại", 400);
+            throw new AppError("Danh mục không tồn tại", StatusCodes.BAD_REQUEST);
         }
         product.category = category;
     }
-    if (stock !== undefined && !product.isVariant) product.stock = stock;
+    if (stock !== undefined && !product.isVariant) {
+        if (stock < 0) {
+            throw new AppError("Số lượng tồn kho không được âm", StatusCodes.BAD_REQUEST);
+        }
+        product.stock = stock;
+    }
     if (images) product.images = images;
     if (status) product.status = status;
     if (featured !== undefined) product.featured = featured;
@@ -174,19 +189,17 @@ export const updateProduct = asyncHandler(async (req, res) => {
 
         // Nếu giá sản phẩm chính thay đổi, cập nhật giá cho các biến thể chưa có giá riêng
         if (price && price !== previousPrice) {
-            const variants = await ProductVariant.find({
-                product: product._id,
-                price: previousPrice, // Chỉ cập nhật các biến thể có giá bằng giá cũ
-            });
-
-            for (const variant of variants) {
-                variant.price = price;
-                await variant.save();
-            }
+            await ProductVariant.updateMany(
+                {
+                    product: product._id,
+                    price: previousPrice, // Chỉ cập nhật các biến thể có giá bằng giá cũ
+                },
+                { price: price }
+            );
         }
     }
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
         status: "success",
         data: product,
     });
@@ -198,7 +211,7 @@ export const deleteProduct = asyncHandler(async (req, res) => {
 
     const product = await Product.findById(id);
     if (!product) {
-        throw new AppError("Không tìm thấy sản phẩm", 404);
+        throw new AppError("Không tìm thấy sản phẩm", StatusCodes.NOT_FOUND);
     }
 
     // Nếu là sản phẩm biến thể, xóa tất cả các biến thể
@@ -208,7 +221,7 @@ export const deleteProduct = asyncHandler(async (req, res) => {
 
     await product.deleteOne();
 
-    return res.status(204).json({
+    return res.status(StatusCodes.NO_CONTENT).json({
         status: "success",
         data: null,
     });
@@ -222,16 +235,16 @@ export const getProductVariants = asyncHandler(async (req, res) => {
 
     const product = await Product.findById(productId);
     if (!product) {
-        throw new AppError("Không tìm thấy sản phẩm", 404);
+        throw new AppError("Không tìm thấy sản phẩm", StatusCodes.NOT_FOUND);
     }
 
     if (!product.isVariant) {
-        throw new AppError("Sản phẩm này không phải là sản phẩm biến thể", 400);
+        throw new AppError("Sản phẩm này không phải là sản phẩm biến thể", StatusCodes.BAD_REQUEST);
     }
 
     const variants = await ProductVariant.find({ product: productId });
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
         status: "success",
         results: variants.length,
         data: variants,
@@ -245,10 +258,10 @@ export const getVariantById = asyncHandler(async (req, res) => {
     const variant = await ProductVariant.findById(variantId).populate("product", "name slug");
 
     if (!variant) {
-        throw new AppError("Không tìm thấy biến thể", 404);
+        throw new AppError("Không tìm thấy biến thể", StatusCodes.NOT_FOUND);
     }
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
         status: "success",
         data: variant,
     });
@@ -261,22 +274,22 @@ export const createVariant = asyncHandler(async (req, res) => {
 
     const product = await Product.findById(productId);
     if (!product) {
-        throw new AppError("Không tìm thấy sản phẩm", 404);
+        throw new AppError("Không tìm thấy sản phẩm", StatusCodes.NOT_FOUND);
     }
 
     if (!product.isVariant) {
-        throw new AppError("Sản phẩm này không phải là sản phẩm biến thể", 400);
+        throw new AppError("Sản phẩm này không phải là sản phẩm biến thể", StatusCodes.BAD_REQUEST);
     }
 
     // Kiểm tra SKU đã tồn tại chưa
     const existingSku = await ProductVariant.findOne({ sku });
     if (existingSku) {
-        throw new AppError("SKU đã tồn tại", 400);
+        throw new AppError("SKU đã tồn tại", StatusCodes.BAD_REQUEST);
     }
 
     // Kiểm tra các giá trị thuộc tính có hợp lệ không
     if (!attributeValues || !Array.isArray(attributeValues)) {
-        throw new AppError("Giá trị thuộc tính không hợp lệ", 400);
+        throw new AppError("Giá trị thuộc tính không hợp lệ", StatusCodes.BAD_REQUEST);
     }
 
     // Kiểm tra xem tất cả các thuộc tính của sản phẩm đã được cung cấp chưa
@@ -285,7 +298,10 @@ export const createVariant = asyncHandler(async (req, res) => {
 
     for (const attr of productAttributes) {
         if (!providedAttributes.includes(attr.name)) {
-            throw new AppError(`Thiếu giá trị cho thuộc tính ${attr.name}`, 400);
+            throw new AppError(
+                `Thiếu giá trị cho thuộc tính ${attr.name}`,
+                StatusCodes.BAD_REQUEST
+            );
         }
     }
 
@@ -300,7 +316,10 @@ export const createVariant = asyncHandler(async (req, res) => {
     });
 
     if (existingVariant) {
-        throw new AppError("Biến thể với kết hợp thuộc tính này đã tồn tại", 400);
+        throw new AppError(
+            "Biến thể với kết hợp thuộc tính này đã tồn tại",
+            StatusCodes.BAD_REQUEST
+        );
     }
 
     // Tạo biến thể mới
@@ -324,7 +343,7 @@ export const createVariant = asyncHandler(async (req, res) => {
         await product.save();
     }
 
-    return res.status(201).json({
+    return res.status(StatusCodes.CREATED).json({
         status: "success",
         data: variant,
     });
@@ -337,14 +356,14 @@ export const updateVariant = asyncHandler(async (req, res) => {
 
     const variant = await ProductVariant.findById(variantId);
     if (!variant) {
-        throw new AppError("Không tìm thấy biến thể", 404);
+        throw new AppError("Không tìm thấy biến thể", StatusCodes.NOT_FOUND);
     }
 
     // Kiểm tra SKU đã tồn tại chưa (nếu thay đổi)
     if (sku && sku !== variant.sku) {
         const existingSku = await ProductVariant.findOne({ sku, _id: { $ne: variantId } });
         if (existingSku) {
-            throw new AppError("SKU đã tồn tại", 400);
+            throw new AppError("SKU đã tồn tại", StatusCodes.BAD_REQUEST);
         }
         variant.sku = sku;
     }
@@ -361,7 +380,7 @@ export const updateVariant = asyncHandler(async (req, res) => {
     // Cập nhật tổng số lượng tồn kho của sản phẩm
     await updateProductStock(variant.product);
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
         status: "success",
         data: variant,
     });
@@ -373,7 +392,7 @@ export const deleteVariant = asyncHandler(async (req, res) => {
 
     const variant = await ProductVariant.findById(variantId);
     if (!variant) {
-        throw new AppError("Không tìm thấy biến thể", 404);
+        throw new AppError("Không tìm thấy biến thể", StatusCodes.NOT_FOUND);
     }
 
     const productId = variant.product;
@@ -401,7 +420,7 @@ export const deleteVariant = asyncHandler(async (req, res) => {
     // Cập nhật tổng số lượng tồn kho của sản phẩm
     await updateProductStock(productId);
 
-    return res.status(204).json({
+    return res.status(StatusCodes.NO_CONTENT).json({
         status: "success",
         data: null,
     });
@@ -413,11 +432,11 @@ export const setDefaultVariant = asyncHandler(async (req, res) => {
 
     const product = await Product.findById(productId);
     if (!product) {
-        throw new AppError("Không tìm thấy sản phẩm", 404);
+        throw new AppError("Không tìm thấy sản phẩm", StatusCodes.NOT_FOUND);
     }
 
     if (!product.isVariant) {
-        throw new AppError("Sản phẩm này không phải là sản phẩm biến thể", 400);
+        throw new AppError("Sản phẩm này không phải là sản phẩm biến thể", StatusCodes.BAD_REQUEST);
     }
 
     const variant = await ProductVariant.findOne({
@@ -426,13 +445,13 @@ export const setDefaultVariant = asyncHandler(async (req, res) => {
     });
 
     if (!variant) {
-        throw new AppError("Không tìm thấy biến thể", 404);
+        throw new AppError("Không tìm thấy biến thể", StatusCodes.NOT_FOUND);
     }
 
     product.defaultVariant = variantId;
     await product.save();
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
         status: "success",
         data: { defaultVariant: variantId },
     });

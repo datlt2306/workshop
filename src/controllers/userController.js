@@ -1,12 +1,13 @@
-import { User } from "../models/userModel";
+import { User } from "../models";
 import { asyncHandler } from "../utils/asyncHandler";
 import { AppError } from "../utils/appError";
+import { StatusCodes } from "http-status-codes";
 
 // Get all users (admin only)
 export const getAllUsers = asyncHandler(async (req, res) => {
     const users = await User.find().select("-password");
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: "success",
         results: users.length,
         data: {
@@ -20,10 +21,10 @@ export const getUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id).select("-password");
 
     if (!user) {
-        throw new AppError("Không tìm thấy người dùng", 404);
+        throw new AppError("Không tìm thấy người dùng", StatusCodes.NOT_FOUND);
     }
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: "success",
         data: {
             user,
@@ -38,7 +39,7 @@ export const createUser = asyncHandler(async (req, res) => {
     // Remove password from response
     newUser.password = undefined;
 
-    res.status(201).json({
+    res.status(StatusCodes.CREATED).json({
         status: "success",
         data: {
             user: newUser,
@@ -52,7 +53,7 @@ export const updateUser = asyncHandler(async (req, res) => {
     if (req.body.password) {
         throw new AppError(
             "Không thể cập nhật mật khẩu tại đây. Vui lòng sử dụng /auth/update-password",
-            400
+            StatusCodes.BAD_REQUEST
         );
     }
 
@@ -62,10 +63,10 @@ export const updateUser = asyncHandler(async (req, res) => {
     }).select("-password");
 
     if (!updatedUser) {
-        throw new AppError("Không tìm thấy người dùng", 404);
+        throw new AppError("Không tìm thấy người dùng", StatusCodes.NOT_FOUND);
     }
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: "success",
         data: {
             user: updatedUser,
@@ -78,7 +79,7 @@ export const deleteUser = asyncHandler(async (req, res) => {
     const user = await User.findByIdAndDelete(req.params.id);
 
     if (!user) {
-        throw new AppError("Không tìm thấy người dùng", 404);
+        throw new AppError("Không tìm thấy người dùng", StatusCodes.NOT_FOUND);
     }
 
     res.status(204).json({
@@ -93,7 +94,7 @@ export const updateMe = asyncHandler(async (req, res) => {
     if (req.body.password) {
         throw new AppError(
             "Không thể cập nhật mật khẩu tại đây. Vui lòng sử dụng /auth/update-password",
-            400
+            StatusCodes.BAD_REQUEST
         );
     }
 
@@ -109,7 +110,7 @@ export const updateMe = asyncHandler(async (req, res) => {
         runValidators: true,
     }).select("-password");
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: "success",
         data: {
             user: updatedUser,
@@ -121,7 +122,7 @@ export const updateMe = asyncHandler(async (req, res) => {
 export const getMyAddresses = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.id).select("addresses");
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: "success",
         data: {
             addresses: user.addresses,
@@ -136,7 +137,7 @@ export const addAddress = asyncHandler(async (req, res) => {
     user.addresses.push(req.body);
     await user.save();
 
-    res.status(201).json({
+    res.status(StatusCodes.CREATED).json({
         status: "success",
         data: {
             addresses: user.addresses,
@@ -152,13 +153,13 @@ export const updateAddress = asyncHandler(async (req, res) => {
     );
 
     if (addressIndex === -1) {
-        throw new AppError("Không tìm thấy địa chỉ", 404);
+        throw new AppError("Không tìm thấy địa chỉ", StatusCodes.NOT_FOUND);
     }
 
     user.addresses[addressIndex] = { ...user.addresses[addressIndex].toObject(), ...req.body };
     await user.save();
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: "success",
         data: {
             addresses: user.addresses,
@@ -174,7 +175,7 @@ export const deleteAddress = asyncHandler(async (req, res) => {
     );
 
     if (addressIndex === -1) {
-        throw new AppError("Không tìm thấy địa chỉ", 404);
+        throw new AppError("Không tìm thấy địa chỉ", StatusCodes.NOT_FOUND);
     }
 
     user.addresses.splice(addressIndex, 1);
@@ -194,7 +195,7 @@ export const setDefaultAddress = asyncHandler(async (req, res) => {
     );
 
     if (addressIndex === -1) {
-        throw new AppError("Không tìm thấy địa chỉ", 404);
+        throw new AppError("Không tìm thấy địa chỉ", StatusCodes.NOT_FOUND);
     }
 
     // Remove isDefault from all addresses
@@ -204,7 +205,7 @@ export const setDefaultAddress = asyncHandler(async (req, res) => {
     user.addresses[addressIndex].isDefault = true;
     await user.save();
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: "success",
         data: {
             addresses: user.addresses,
@@ -223,7 +224,7 @@ export const countUsersByRole = asyncHandler(async (req, res) => {
 
     const count = await User.countDocuments(filter);
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         status: "success",
         data: {
             count,

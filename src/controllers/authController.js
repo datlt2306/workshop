@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
-import { User } from "../models/userModel";
+import { User } from "../models";
 import { AppError } from "../utils/appError";
 import { asyncHandler } from "../utils/asyncHandler";
 
@@ -34,7 +34,7 @@ export const signup = asyncHandler(async (req, res, next) => {
         phone: req.body.phone,
     });
 
-    createSendToken(newUser, 201, res);
+    createSendToken(newUser, StatusCodes.CREATED, res);
 });
 
 // Đăng nhập
@@ -54,7 +54,7 @@ export const login = asyncHandler(async (req, res, next) => {
     }
 
     // 3) Nếu mọi thứ OK, gửi token cho client
-    createSendToken(user, 200, res);
+    createSendToken(user, StatusCodes.OK, res);
 });
 
 // Lấy thông tin người dùng đang đăng nhập
@@ -62,7 +62,7 @@ export const getMe = asyncHandler(async (req, res, next) => {
     // Lấy user từ middleware auth
     const user = req.user;
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         success: true,
         data: user,
     });
@@ -83,7 +83,7 @@ export const updatePassword = asyncHandler(async (req, res, next) => {
     await user.save();
 
     // 4) Đăng nhập lại user, gửi JWT
-    createSendToken(user, 200, res);
+    createSendToken(user, StatusCodes.OK, res);
 });
 
 // Quên mật khẩu - gửi email xác nhận
@@ -91,7 +91,9 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
     // 1) Lấy user dựa trên email
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-        return next(new AppError("Không tìm thấy người dùng với email này.", 404));
+        return next(
+            new AppError("Không tìm thấy người dùng với email này.", StatusCodes.NOT_FOUND)
+        );
     }
 
     // 2) Tạo token xác nhận (thông thường sẽ gửi qua email)
@@ -101,7 +103,7 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
     });
 
     // 3) Gửi thông báo thành công
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
         success: true,
         message: "Token xác nhận đã được gửi đến email của bạn.",
         resetToken, // Trong thực tế, không gửi token trong response
@@ -123,5 +125,5 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
     await user.save();
 
     // 3) Đăng nhập lại user, gửi JWT
-    createSendToken(user, 200, res);
+    createSendToken(user, StatusCodes.OK, res);
 });

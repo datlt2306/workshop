@@ -1,79 +1,88 @@
 export class APIFeatures {
-  constructor(query, queryString) {
-    this.query = query
-    this.queryString = queryString
-  }
-
-  filter() {
-    const queryObj = { ...this.queryString }
-    const excludedFields = ["page", "sort", "limit", "fields", "q", "populate"]
-    excludedFields.forEach((el) => delete queryObj[el])
-
-    // Xử lý các toán tử so sánh
-    let queryStr = JSON.stringify(queryObj)
-    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|eq|ne|in)\b/g, (match) => `$${match}`)
-
-    this.query = this.query.find(JSON.parse(queryStr))
-
-    return this
-  }
-
-  sort() {
-    if (this.queryString.sort) {
-      const sortBy = this.queryString.sort.split(",").join(" ")
-      this.query = this.query.sort(sortBy)
-    } else {
-      this.query = this.query.sort("-createdAt")
+    constructor(model, queryString) {
+        this.model = model;
+        this.queryString = queryString;
+        this.filterObj = {};
+        this.options = {
+            page: Number.parseInt(this.queryString.page, 10) || 1,
+            limit: Number.parseInt(this.queryString.limit, 10) || 10,
+            sort: "-createdAt",
+            select: "-__v",
+            populate: [],
+        };
+        this._conditions = {};
     }
 
-    return this
-  }
+    filter() {
+        const queryObj = { ...this.queryString };
+        const excludedFields = ["page", "sort", "limit", "fields", "q", "populate"];
+        excludedFields.forEach((el) => delete queryObj[el]);
 
-  limitFields() {
-    if (this.queryString.fields) {
-      const fields = this.queryString.fields.split(",").join(" ")
-      this.query = this.query.select(fields)
-    } else {
-      this.query = this.query.select("-__v")
+        // Xử lý các toán tử so sánh
+        let queryStr = JSON.stringify(queryObj);
+        queryStr = queryStr.replace(/\b(gt|gte|lt|lte|eq|ne|in)\b/g, (match) => `$${match}`);
+
+        this._conditions = { ...this._conditions, ...JSON.parse(queryStr) };
+
+        return this;
     }
 
-    return this
-  }
+    sort() {
+        if (this.queryString.sort) {
+            this.options.sort = this.queryString.sort.split(",").join(" ");
+        }
 
-  paginate() {
-    const page = Number.parseInt(this.queryString.page, 10) || 1
-    const limit = Number.parseInt(this.queryString.limit, 10) || 10
-    const skip = (page - 1) * limit
-
-    this.query = this.query.skip(skip).limit(limit)
-
-    return this
-  }
-
-  search() {
-    if (this.queryString.q) {
-      const searchTerm = this.queryString.q
-
-      // Giả sử model có thuộc tính searchableFields
-      const searchQuery = {
-        $or: [{ name: { $regex: searchTerm, $options: "i" } }, { description: { $regex: searchTerm, $options: "i" } }],
-      }
-
-      this.query = this.query.find(searchQuery)
+        return this;
     }
 
-    return this
-  }
+    limitFields() {
+        if (this.queryString.fields) {
+            this.options.select = this.queryString.fields.split(",").join(" ");
+        }
 
-  populate() {
-    if (this.queryString.populate) {
-      const fields = this.queryString.populate.split(",")
-      fields.forEach((field) => {
-        this.query = this.query.populate(field)
-      })
+        return this;
     }
 
-    return this
-  }
+    search() {
+        if (this.queryString.q) {
+            const searchTerm = this.queryString.q;
+
+            const searchQuery = {
+                $or: [
+                    { name: { $regex: searchTerm, $options: "i" } },
+                    { description: { $regex: searchTerm, $options: "i" } },
+                ],
+            };
+
+            this._conditions = { ...this._conditions, ...searchQuery };
+        }
+
+        return this;
+    }
+
+    populate() {
+        if (this.queryString.populate) {
+            const fields = this.queryString.populate.split(",");
+            this.options.populate = fields;
+        }
+
+        return this;
+    }
+
+    async execute() {
+        try {
+            const result = await this.model.paginate(this._conditions, this.options);
+
+            return {
+                results: result.docs.length,
+                total: result.totalDocs,
+                totalPages: result.totalPages,
+                page: result.page,
+                limit: result.limit,
+                data: result.docs,
+            };
+        } catch (error) {
+            throw error;
+        }
+    }
 }
-
