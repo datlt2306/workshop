@@ -12,8 +12,12 @@ import {
     updateVariant,
     deleteVariant,
     setDefaultVariant,
+    deleteProductImage,
 } from "../controllers/productController";
 import { verifyJWT, restrictTo } from "../middleware/auth";
+import { createProductSchema, updateProductSchema } from "../validation/productValidation";
+import { validateRequest } from "../middleware/validateRequest";
+import { uploadFields } from "../middleware/uploadMiddleware";
 
 const router = express.Router();
 
@@ -28,9 +32,18 @@ router.use(verifyJWT);
 // Routes chỉ cho admin và staff
 router.use(restrictTo("admin", "staff"));
 
-router.post("/", createProduct);
-router.patch("/:id", updateProduct);
+// Cấu hình upload ảnh cho sản phẩm
+const productImageUpload = uploadFields([
+    { name: "thumbnailImage", maxCount: 1 },
+    { name: "images", maxCount: 10 },
+]);
+
+router.post("/", productImageUpload, validateRequest(createProductSchema), createProduct);
+router.patch("/:id", productImageUpload, validateRequest(updateProductSchema), updateProduct);
 router.delete("/:id", deleteProduct);
+
+// Xóa ảnh sản phẩm
+router.delete("/:productId/images/:imageIndex", deleteProductImage);
 
 // Routes cho biến thể sản phẩm
 router.get("/:productId/variants", getProductVariants);

@@ -3,6 +3,8 @@ import { AppError } from "../utils/appError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { APIFeatures } from "../utils/apiFeatures";
 import { StatusCodes } from "http-status-codes";
+import * as cloudinaryService from "../services/cloudinaryService";
+import fs from "fs";
 
 // Lấy tất cả sản phẩm
 export const getAllProducts = asyncHandler(async (req, res) => {
@@ -81,7 +83,6 @@ export const createProduct = asyncHandler(async (req, res) => {
         category,
         stock,
         sku,
-        images,
         status,
         featured,
         isVariant,
@@ -100,6 +101,40 @@ export const createProduct = asyncHandler(async (req, res) => {
         throw new AppError("SKU đã tồn tại", StatusCodes.BAD_REQUEST);
     }
 
+    // Xử lý upload hình ảnh lên Cloudinary
+    let productImages = [];
+
+    // Xử lý ảnh thumbnail nếu có
+    if (req.files && req.files.thumbnailImage) {
+        try {
+            const result = await cloudinaryService.uploadImage(req.files.thumbnailImage[0].path, {
+                folder: "products",
+            });
+            productImages.push(result.url);
+        } catch (error) {
+            throw new AppError(
+                `Lỗi upload ảnh thumbnail: ${error.message}`,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    // Xử lý nhiều ảnh sản phẩm nếu có
+    if (req.files && req.files.images) {
+        try {
+            const imagePaths = req.files.images.map((file) => file.path);
+            const results = await cloudinaryService.uploadMultipleImages(imagePaths, {
+                folder: "products",
+            });
+            productImages = [...productImages, ...results.map((result) => result.url)];
+        } catch (error) {
+            throw new AppError(
+                `Lỗi upload ảnh sản phẩm: ${error.message}`,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
     // Tạo sản phẩm mới
     const product = await Product.create({
         name,
@@ -109,7 +144,7 @@ export const createProduct = asyncHandler(async (req, res) => {
         category,
         stock: isVariant ? 0 : stock, // Nếu là sản phẩm biến thể, stock sẽ được tính từ các biến thể
         sku,
-        images: images || [],
+        images: productImages,
         status: status || "draft",
         featured: featured || false,
         isVariant: isVariant || false,
@@ -133,12 +168,11 @@ export const createProduct = asyncHandler(async (req, res) => {
 });
 
 // Cập nhật sản phẩm
-// Cập nhật sản phẩm
 export const updateProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { name, description, price, discountPrice, category, stock, images, status, featured } =
-        req.body;
+    const { name, description, price, discountPrice, category, stock, status, featured } = req.body;
 
+    // Tìm sản phẩm
     const product = await Product.findById(id);
     if (!product) {
         throw new AppError("Không tìm thấy sản phẩm", StatusCodes.NOT_FOUND);
@@ -147,21 +181,57 @@ export const updateProduct = asyncHandler(async (req, res) => {
     // Lưu giá cũ để so sánh sau này
     const previousPrice = product.price;
 
+    // Xử lý upload hình ảnh mới lên Cloudinary nếu có
+    if (req.files) {
+        // Xử lý ảnh thumbnail nếu có
+        if (req.files.thumbnailImage) {
+            try {
+                const result = await cloudinaryService.uploadImage(
+                    req.files.thumbnailImage[0].path,
+                    { folder: "products" }
+                );
+
+                // Nếu sản phẩm đã có ảnh và ảnh đầu tiên đang là ảnh thumbnail
+                if (product.images.length > 0) {
+                    // Thay thế ảnh đầu tiên bằng ảnh thumbnail mới
+                    product.images[0] = result.url;
+                } else {
+                    product.images.push(result.url);
+                }
+            } catch (error) {
+                throw new AppError(
+                    `Lỗi upload ảnh thumbnail: ${error.message}`,
+                    StatusCodes.INTERNAL_SERVER_ERROR
+                );
+            }
+        }
+
+        // Xử lý nhiều ảnh sản phẩm nếu có
+        if (req.files.images) {
+            try {
+                const imagePaths = req.files.images.map((file) => file.path);
+                const results = await cloudinaryService.uploadMultipleImages(imagePaths, {
+                    folder: "products",
+                });
+
+                // Thêm các ảnh mới vào mảng images hiện có
+                const newImages = results.map((result) => result.url);
+                product.images = [...product.images, ...newImages];
+            } catch (error) {
+                throw new AppError(
+                    `Lỗi upload ảnh sản phẩm: ${error.message}`,
+                    StatusCodes.INTERNAL_SERVER_ERROR
+                );
+            }
+        }
+    }
+
     // Cập nhật thông tin sản phẩm
     if (name) product.name = name;
     if (description) product.description = description;
-    if (price) {
-        if (price < 0) {
-            throw new AppError("Giá sản phẩm không được âm", StatusCodes.BAD_REQUEST);
-        }
-        product.price = price;
-    }
-    if (discountPrice !== undefined) {
-        if (discountPrice < 0) {
-            throw new AppError("Giá khuyến mãi không được âm", StatusCodes.BAD_REQUEST);
-        }
-        product.discountPrice = discountPrice;
-    }
+    if (price) product.price = price;
+    if (discountPrice !== undefined) product.discountPrice = discountPrice;
+
     if (category) {
         // Kiểm tra danh mục tồn tại
         const existingCategory = await Category.findById(category);
@@ -170,13 +240,9 @@ export const updateProduct = asyncHandler(async (req, res) => {
         }
         product.category = category;
     }
-    if (stock !== undefined && !product.isVariant) {
-        if (stock < 0) {
-            throw new AppError("Số lượng tồn kho không được âm", StatusCodes.BAD_REQUEST);
-        }
-        product.stock = stock;
-    }
-    if (images) product.images = images;
+
+    if (stock !== undefined && !product.isVariant) product.stock = stock;
+    // Không cần cập nhật images vì đã được xử lý ở trên
     if (status) product.status = status;
     if (featured !== undefined) product.featured = featured;
 
@@ -200,7 +266,6 @@ export const updateProduct = asyncHandler(async (req, res) => {
     }
 
     return res.status(StatusCodes.OK).json({
-        status: "success",
         data: product,
     });
 });
@@ -212,6 +277,26 @@ export const deleteProduct = asyncHandler(async (req, res) => {
     const product = await Product.findById(id);
     if (!product) {
         throw new AppError("Không tìm thấy sản phẩm", StatusCodes.NOT_FOUND);
+    }
+
+    // Xóa ảnh sản phẩm trên Cloudinary
+    // Lưu ý: URL của Cloudinary có dạng https://res.cloudinary.com/cloud-name/image/upload/v1234567890/folder/public-id
+    // Chúng ta cần trích xuất public_id từ URL để xóa ảnh
+    if (product.images && product.images.length > 0) {
+        const publicIds = product.images.map((url) => {
+            const parts = url.split("/");
+            const filenameWithExtension = parts[parts.length - 1];
+            // Lấy phần public_id bỏ đuôi file
+            const publicId = `products/${filenameWithExtension.split(".")[0]}`;
+            return publicId;
+        });
+
+        try {
+            await cloudinaryService.deleteMultipleImages(publicIds);
+        } catch (error) {
+            console.error("Lỗi khi xóa ảnh sản phẩm:", error);
+            // Vẫn tiếp tục xóa sản phẩm ngay cả khi xóa ảnh bị lỗi
+        }
     }
 
     // Nếu là sản phẩm biến thể, xóa tất cả các biến thể
@@ -464,3 +549,46 @@ async function updateProductStock(productId) {
 
     await Product.findByIdAndUpdate(productId, { stock: totalStock });
 }
+
+/**
+ * Xóa ảnh sản phẩm
+ */
+export const deleteProductImage = asyncHandler(async (req, res) => {
+    const { productId, imageIndex } = req.params;
+
+    // Tìm sản phẩm
+    const product = await Product.findById(productId);
+    if (!product) {
+        throw new AppError("Không tìm thấy sản phẩm", StatusCodes.NOT_FOUND);
+    }
+
+    // Kiểm tra image index hợp lệ
+    if (imageIndex < 0 || imageIndex >= product.images.length) {
+        throw new AppError("Chỉ số ảnh không hợp lệ", StatusCodes.BAD_REQUEST);
+    }
+
+    // Lấy URL ảnh cần xóa
+    const imageUrl = product.images[imageIndex];
+
+    // Xóa ảnh trên Cloudinary
+    try {
+        // Trích xuất public_id từ URL
+        const parts = imageUrl.split("/");
+        const filenameWithExtension = parts[parts.length - 1];
+        const publicId = `products/${filenameWithExtension.split(".")[0]}`;
+
+        await cloudinaryService.deleteImage(publicId);
+
+        // Xóa ảnh khỏi mảng images của sản phẩm
+        product.images.splice(imageIndex, 1);
+        await product.save();
+
+        res.status(StatusCodes.OK).json({
+            success: true,
+            message: "Xóa ảnh thành công",
+            data: product,
+        });
+    } catch (error) {
+        throw new AppError(`Lỗi khi xóa ảnh: ${error.message}`, StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+});

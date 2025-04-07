@@ -1,19 +1,19 @@
-import { AppError } from "../utils/appError"
+import { AppError } from "../utils/appError";
+import { StatusCodes } from "http-status-codes";
 
-export const validateRequest = (schema) => {
-  return (req, res, next) => {
-    const { error } = schema.validate(req.body, {
-      abortEarly: false,
-      allowUnknown: true,
-      stripUnknown: false,
-    })
+export const validateRequest = (schema, target = "body") => {
+    return (req, res, next) => {
+        const { error } = schema.validate(req[target], {
+            abortEarly: false,
+            stripUnknown: true,
+        });
 
-    if (error) {
-      const errorMessage = error.details.map((detail) => detail.message).join("; ")
-      return next(new AppError(errorMessage, 400))
-    }
+        if (error) {
+            const errorMessages = error.details.map((detail) => detail.message).join(", ");
+            return next(new AppError(errorMessages, StatusCodes.BAD_REQUEST));
+        }
 
-    next()
-  }
-}
-
+        // Nếu req[target] được validate, tiếp tục
+        next();
+    };
+};
