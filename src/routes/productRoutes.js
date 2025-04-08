@@ -1,23 +1,23 @@
 import express from "express";
 import {
+    createProduct,
+    createVariant,
+    deleteProduct,
+    deleteProductImage,
+    deleteVariant,
     getAllProducts,
     getProductById,
     getProductBySlug,
-    createProduct,
-    updateProduct,
-    deleteProduct,
     getProductVariants,
     getVariantById,
-    createVariant,
-    updateVariant,
-    deleteVariant,
     setDefaultVariant,
-    deleteProductImage,
+    updateProduct,
+    updateVariant,
 } from "../controllers/productController";
-import { verifyJWT, restrictTo } from "../middleware/auth";
-import { createProductSchema, updateProductSchema } from "../validation/productValidation";
-import { validateRequest } from "../middleware/validateRequest";
+import { restrictTo, verifyJWT } from "../middleware/auth";
 import { uploadFields } from "../middleware/uploadMiddleware";
+import { validateRequest } from "../middleware/validateRequest";
+import { createProductSchema, updateProductSchema } from "../validation/productValidation";
 
 const router = express.Router();
 

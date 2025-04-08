@@ -1,10 +1,9 @@
-import { Product, ProductVariant, Category } from "../models";
+import { StatusCodes } from "http-status-codes";
+import { Category, Product, ProductVariant } from "../models";
+import * as cloudinaryService from "../services/cloudinaryService";
+import { APIFeatures } from "../utils/apiFeatures";
 import { AppError } from "../utils/appError";
 import { asyncHandler } from "../utils/asyncHandler";
-import { APIFeatures } from "../utils/apiFeatures";
-import { StatusCodes } from "http-status-codes";
-import * as cloudinaryService from "../services/cloudinaryService";
-import fs from "fs";
 
 // Lấy tất cả sản phẩm
 export const getAllProducts = asyncHandler(async (req, res) => {

@@ -2,96 +2,46 @@
     "info": {
         "_postman_id": "a7e5f8d6-3b2c-4e5d-9f8a-1c2b3d4e5f6a",
         "name": "Ecommerce System",
-        "description": "Bộ sưu tập API đầy đủ để kiểm thử hệ thống backend thương mại điện tử",
+        "description": "Postman collection for Ecommerce System API",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
         "_exporter_id": "22685679"
     },
     "item": [
         {
-            "name": "Authentication",
-            "description": "Các endpoint cho xác thực người dùng và quản lý tài khoản",
+            "name": "Auth",
             "item": [
                 {
-                    "name": "Đăng ký",
+                    "name": "Signup",
                     "request": {
                         "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
+                        "url": "{{baseUrl}}/auth/signup",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"name\": \"Nguyễn Văn A\",\n    \"email\": \"admin@example.com\",\n    \"password\": \"123456\",\n    \"phone\": \"0987654321\"\n}"
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/auth/signup",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["auth", "signup"]
-                        },
-                        "description": "Đăng ký tài khoản người dùng mới"
-                    },
-                    "response": []
+                            "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"123456789\"\n}"
+                        }
+                    }
                 },
                 {
-                    "name": "Đăng nhập",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "// Trích xuất và lưu token từ phản hồi",
-                                    "var jsonData = pm.response.json();",
-                                    "pm.test(\"Mã trạng thái là 200\", function () {",
-                                    "    pm.response.to.have.status(200);",
-                                    "});",
-                                    "",
-                                    "pm.test(\"Xác thực thành công\", function () {",
-                                    "    pm.expect(jsonData).to.have.property('token');",
-                                    "    pm.expect(jsonData).to.have.property('user');",
-                                    "});",
-                                    "",
-                                    "if (jsonData.token) {",
-                                    "    // Đặt token trong biến môi trường",
-                                    "    pm.environment.set(\"authToken\", jsonData.token);",
-                                    "    // Đồng thời đặt token trong biến bộ sưu tập để dự phòng",
-                                    "    pm.collectionVariables.set(\"authToken\", jsonData.token);",
-                                    "    console.log(\"✅ Token xác thực đã được lưu vào biến môi trường và biến bộ sưu tập\");",
-                                    "    ",
-                                    "    // Đặt ID người dùng để sử dụng lại trong các yêu cầu khác",
-                                    "    if (jsonData.user && jsonData.user._id) {",
-                                    "        pm.environment.set(\"userId\", jsonData.user._id);",
-                                    "        console.log(\"✅ ID người dùng đã được lưu vào môi trường\");",
-                                    "    }",
-                                    "} else {",
-                                    "    console.error(\"❌ Không tìm thấy token trong phản hồi\");",
-                                    "}"
-                                ],
-                                "type": "text/javascript"
-                            }
-                        }
-                    ],
+                    "name": "Login",
                     "request": {
                         "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
+                        "url": "{{baseUrl}}/auth/login",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"123456\"\n}"
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/auth/login",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["auth", "login"]
-                        },
-                        "description": "Đăng nhập bằng email và mật khẩu để nhận token xác thực"
-                    },
-                    "response": []
+                            "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Me",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/auth/me",
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{ "key": "token", "value": "{{token}}" }]
+                        }
+                    }
                 },
                 {
                     "name": "Lấy thông tin người dùng hiện tại",
@@ -197,6 +147,35 @@
             "name": "Users",
             "description": "Các endpoint cho quản lý người dùng",
             "item": [
+                {
+                    "name": "Get All Users",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/users",
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{ "key": "token", "value": "{{token}}" }]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Me",
+                    "request": {
+                        "method": "PATCH",
+                        "url": "{{baseUrl}}/users/update-me",
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{ "key": "token", "value": "{{token}}" }]
+                        },
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                { "key": "photo", "type": "file", "src": "" },
+                                { "key": "name", "value": "Updated Name", "type": "text" }
+                            ]
+                        }
+                    }
+                },
                 {
                     "name": "Lấy tất cả người dùng (Admin)",
                     "request": {
@@ -513,6 +492,32 @@
             "name": "Products",
             "description": "Các endpoint cho quản lý sản phẩm",
             "item": [
+                {
+                    "name": "Get All Products",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/products"
+                    }
+                },
+                {
+                    "name": "Create Product",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/products",
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{ "key": "token", "value": "{{token}}" }]
+                        },
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                { "key": "name", "value": "New Product", "type": "text" },
+                                { "key": "price", "value": "100", "type": "text" },
+                                { "key": "thumbnailImage", "type": "file", "src": "" }
+                            ]
+                        }
+                    }
+                },
                 {
                     "name": "Lấy tất cả sản phẩm",
                     "request": {
@@ -1256,6 +1261,32 @@
             "name": "Orders",
             "description": "Các endpoint cho quản lý đơn hàng",
             "item": [
+                {
+                    "name": "Create Order",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/orders",
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{ "key": "token", "value": "{{token}}" }]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"shippingAddress\": {\n    \"fullName\": \"John Doe\",\n    \"phone\": \"123456789\",\n    \"province\": \"Hanoi\",\n    \"district\": \"Ba Dinh\",\n    \"ward\": \"Ward 1\",\n    \"streetAddress\": \"123 Street\"\n  },\n  \"paymentMethod\": \"cod\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get My Orders",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/orders/my-orders",
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{ "key": "token", "value": "{{token}}" }]
+                        }
+                    }
+                },
                 {
                     "name": "Tạo đơn hàng",
                     "request": {
