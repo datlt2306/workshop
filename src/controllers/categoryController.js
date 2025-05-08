@@ -40,6 +40,7 @@ export const getCategory = asyncHandler(async (req, res, next) => {
 
 // Tạo danh mục mới
 export const createCategory = asyncHandler(async (req, res, next) => {
+    console.log(1);
     const { name, description, parent, image, isFeatured, order } = req.body;
 
     // Tính toán level dựa trên danh mục cha

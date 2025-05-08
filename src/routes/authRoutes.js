@@ -1,24 +1,36 @@
-import express from "express"
-import { signup, login, getMe, updatePassword, forgotPassword, resetPassword } from "../controllers/authController"
-import { verifyJWT } from "../middleware/auth"
-import { validateRequest } from "../middleware/validateRequest"
-import { signupSchema, loginSchema, updatePasswordSchema } from "../validation/authValidation"
+import express from "express";
+import {
+    signup,
+    login,
+    getMe,
+    updatePassword,
+    forgotPassword,
+    resetPassword,
+} from "../controllers/authController";
+import { verifyJWT } from "../middleware/auth";
+import { validateRequest } from "../middleware/validateRequest";
+import { signupSchema, loginSchema, updatePasswordSchema } from "../validation/authValidation";
 
-export const authRouter = express.Router()
+export const authRouter = express.Router();
 
 // Đăng ký và đăng nhập
-authRouter.post("/signup", validateRequest(signupSchema), signup)
-authRouter.post("/login", validateRequest(loginSchema), login)
+authRouter.post("/signup", validateRequest(signupSchema), signup);
+authRouter.post("/login", validateRequest(loginSchema), login);
 
 // Lấy thông tin người dùng hiện tại
-authRouter.get("/me", verifyJWT, getMe)
+authRouter.get("/me", verifyJWT, getMe);
 
 // Cập nhật mật khẩu
-authRouter.patch("/update-password", verifyJWT, validateRequest(updatePasswordSchema), updatePassword)
+authRouter.patch(
+    "/update-password",
+    verifyJWT,
+    validateRequest(updatePasswordSchema),
+    updatePassword
+);
 
 // Quên mật khẩu
-authRouter.post("/forgot-password", forgotPassword)
-authRouter.patch("/reset-password/:token", resetPassword)
+authRouter.post("/forgot-password", forgotPassword);
+authRouter.patch("/reset-password/:token", resetPassword);
 
 /**
  * @swagger
@@ -172,4 +184,3 @@ authRouter.patch("/reset-password/:token", resetPassword)
  *       400:
  *         description: Token không hợp lệ hoặc đã hết hạn
  */
-

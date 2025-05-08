@@ -10,7 +10,7 @@ import swaggerUi from "swagger-ui-express";
 import { errorHandler } from "./middleware/errorHandler";
 import { connectDB } from "./config/database";
 import { swaggerOptions } from "./config/swagger";
-import { apiRouter } from "./routes/index";
+import apiRouter from "./routes/index";
 import dotenv from "dotenv";
 dotenv.config();
 // Kết nối cơ sở dữ liệu

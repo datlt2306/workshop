@@ -1,42 +1,42 @@
-import express from "express"
+import express from "express";
 import {
-  getCart,
-  addToCart,
-  updateCartItem,
-  removeFromCart,
-  clearCart,
-  applyVoucher,
-  removeVoucher,
-} from "../controllers/cartController"
-import { verifyJWT } from "../middleware/auth"
-import { validateRequest } from "../middleware/validateRequest"
-import { addToCartSchema, updateCartItemSchema } from "../validation/cartValidation"
+    getCart,
+    addToCart,
+    updateCartItem,
+    removeFromCart,
+    clearCart,
+    applyVoucher,
+    removeVoucher,
+} from "../controllers/cartController";
+import { verifyJWT } from "../middleware/auth";
+import { validateRequest } from "../middleware/validateRequest";
+import { addToCartSchema, updateCartItemSchema } from "../validation/cartValidation";
 
-export const cartRouter = express.Router()
+export const cartRouter = express.Router();
 
 // Tất cả các route đều yêu cầu đăng nhập
-cartRouter.use(verifyJWT)
+cartRouter.use(verifyJWT);
 
 // Lấy giỏ hàng hiện tại
-cartRouter.get("/", getCart)
+cartRouter.get("/", getCart);
 
 // Thêm sản phẩm vào giỏ hàng
-cartRouter.post("/add", validateRequest(addToCartSchema), addToCart)
+cartRouter.post("/add", validateRequest(addToCartSchema), addToCart);
 
 // Cập nhật số lượng sản phẩm trong giỏ hàng
-cartRouter.patch("/update/:itemId", validateRequest(updateCartItemSchema), updateCartItem)
+cartRouter.patch("/update/:itemId", validateRequest(updateCartItemSchema), updateCartItem);
 
 // Xóa sản phẩm khỏi giỏ hàng
-cartRouter.delete("/remove/:itemId", removeFromCart)
+cartRouter.delete("/remove/:itemId", removeFromCart);
 
 // Xóa toàn bộ giỏ hàng
-cartRouter.delete("/clear", clearCart)
+cartRouter.delete("/clear", clearCart);
 
 // Áp dụng voucher
-cartRouter.post("/voucher", applyVoucher)
+cartRouter.post("/voucher", applyVoucher);
 
 // Xóa voucher
-cartRouter.delete("/voucher", removeVoucher)
+cartRouter.delete("/voucher", removeVoucher);
 
 /**
  * @swagger
@@ -248,3 +248,14 @@ cartRouter.delete("/voucher", removeVoucher)
  *         description: Lỗi server
  */
 
+/**
+ * Quy trình khi làm DATN:
+ * 1. Chọn dự án
+ * 2. Xây dựng nghiệp vụ cho dự án
+ * 3. Các tính năng đặc thù cho dự án đấy
+ * 4. Lên kế hoạch cho dự án
+ * 5. Giao việc cho từng người
+ * 6. Xây dựng backend trước
+ * 7. Thiết kế model cho dự án
+ * 8. Xây dựng các API cho dự án
+ */

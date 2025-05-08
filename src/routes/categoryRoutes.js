@@ -1,34 +1,34 @@
-import express from "express"
+import express from "express";
 import {
-  getAllCategories,
-  getCategory,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-  getRootCategories,
-  getSubcategories,
-  getCategoryTree,
-} from "../controllers/categoryController"
-import { verifyJWT, restrictTo } from "../middleware/auth"
-import { validateRequest } from "../middleware/validateRequest"
-import { categorySchema } from "../validation/categoryValidation" // Assuming this exists
+    getAllCategories,
+    getCategory,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    getRootCategories,
+    getSubcategories,
+    getCategoryTree,
+} from "../controllers/categoryController";
+import { verifyJWT, restrictTo } from "../middleware/auth";
+import { validateRequest } from "../middleware/validateRequest";
+import { categorySchema } from "../validation/categoryValidation"; // Assuming this exists
 
-export const categoryRouter = express.Router()
+export const categoryRouter = express.Router();
 
 // Public routes - accessible by anyone
-categoryRouter.get("/", getAllCategories)
-categoryRouter.get("/tree", getCategoryTree)
-categoryRouter.get("/root", getRootCategories)
-categoryRouter.get("/:id", getCategory)
-categoryRouter.get("/:id/subcategories", getSubcategories)
+categoryRouter.get("/", getAllCategories);
+categoryRouter.get("/tree", getCategoryTree);
+categoryRouter.get("/root", getRootCategories);
+categoryRouter.get("/:id", getCategory);
+categoryRouter.get("/:id/subcategories", getSubcategories);
 
 // Protected routes - accessible only by authenticated users with proper roles
-categoryRouter.use(verifyJWT)
-categoryRouter.use(restrictTo("admin", "staff")) // Assuming these roles can manage categories
+categoryRouter.use(verifyJWT);
+categoryRouter.use(restrictTo("admin", "staff")); // Assuming these roles can manage categories
 
-categoryRouter.post("/", validateRequest(categorySchema), createCategory)
-categoryRouter.patch("/:id", validateRequest(categorySchema), updateCategory)
-categoryRouter.delete("/:id", deleteCategory)
+categoryRouter.post("/", validateRequest(categorySchema), createCategory);
+categoryRouter.patch("/:id", validateRequest(categorySchema), updateCategory);
+categoryRouter.delete("/:id", deleteCategory);
 
 /**
  * @swagger
@@ -205,4 +205,3 @@ categoryRouter.delete("/:id", deleteCategory)
  *       200:
  *         description: Danh sách danh mục con
  */
-

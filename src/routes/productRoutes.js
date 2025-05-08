@@ -38,8 +38,8 @@ const productImageUpload = uploadFields([
     { name: "images", maxCount: 10 },
 ]);
 
-router.post("/", productImageUpload, validateRequest(createProductSchema), createProduct);
-router.patch("/:id", productImageUpload, validateRequest(updateProductSchema), updateProduct);
+router.post("/", validateRequest(createProductSchema), createProduct);
+router.patch("/:id", validateRequest(updateProductSchema), updateProduct);
 router.delete("/:id", deleteProduct);
 
 // Xóa ảnh sản phẩm

@@ -1,8 +1,8 @@
 import express from "express";
-import authRoutes from "./authRoutes";
+import { authRouter } from "./authRoutes";
 import userRoutes from "./userRoutes";
 import productRoutes from "./productRoutes";
-import categoryRoutes from "./categoryRoutes";
+import { categoryRouter } from "./categoryRoutes";
 import { cartRouter } from "./cartRoutes";
 import orderRoutes from "./orderRoutes";
 import voucherRoutes from "./voucherRoutes";
@@ -14,16 +14,16 @@ import uploadRoutes from "./uploadRoutes";
 const router = express.Router();
 
 // API Routes
-router.use("/auth", authRoutes);
-router.use("/users", userRoutes);
+router.use("/auth", authRouter);
+// router.use("/users", userRoutes);
 router.use("/products", productRoutes);
-router.use("/categories", categoryRoutes);
+router.use("/categories", categoryRouter);
 router.use("/cart", cartRouter);
-router.use("/orders", orderRoutes);
+// router.use("/orders", orderRoutes);
 router.use("/vouchers", voucherRoutes);
-router.use("/notifications", notificationRoutes);
-router.use("/attributes", attributeRoutes);
-router.use("/reports", reportRoutes);
-router.use("/uploads", uploadRoutes);
+// router.use("/notifications", notificationRoutes);
+// router.use("/attributes", attributeRoutes);
+// router.use("/reports", reportRoutes);
+// router.use("/uploads", uploadRoutes);
 
 export default router;
