@@ -13,7 +13,9 @@ process.on("uncaughtException", (err) => {
 });
 
 const server = app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    if (process.env.NODE_ENV === "development") {
+        console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    }
 });
 
 // Xử lý lỗi promise bị từ chối

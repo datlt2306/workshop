@@ -4,7 +4,7 @@ import { User } from "../models";
 import { AppError } from "../utils/appError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { StatusCodes } from "http-status-codes";
-
+import bcrypt from "bcryptjs";
 // Tạo JWT token
 const signToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -28,6 +28,8 @@ const createSendToken = (user, statusCode, res) => {
 
 // Đăng ký người dùng mới
 export const signup = asyncHandler(async (req, res, next) => {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10); // Mã hóa mật khẩu
+
     const newUser = await User.create({
         name: req.body.name,
         email: req.body.email,
