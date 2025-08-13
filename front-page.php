@@ -1,7 +1,7 @@
 <?php get_header(); ?> <!-- Gọi tệp header.php -->
 
 <div class="page-banner">
-    <div class="page-banner__bg-image" style="background-image: url(images/library-hero.jpg)"></div>
+    <div class="page-banner__bg-image" style="background-image: url(<?php echo get_theme_file_uri('images/library-hero.jpg'); ?>)"></div>
     <div class="page-banner__content container t-center c-white">
         <h1 class="headline headline--large">Welcome!</h1>
         <h2 class="headline headline--medium">We think you&rsquo;ll like it here.</h2>
@@ -72,7 +72,7 @@
 <div class="hero-slider">
     <div data-glide-el="track" class="glide__track">
         <div class="glide__slides">
-            <div class="hero-slider__slide" style="background-image: url(images/bus.jpg)">
+            <div class="hero-slider__slide" style="background-image: url(<?php echo get_theme_file_uri('images/bus.jpg'); ?>)">
                 <div class="hero-slider__interior container">
                     <div class="hero-slider__overlay">
                         <h2 class="headline headline--medium t-center">Free Transportation</h2>
@@ -81,7 +81,7 @@
                     </div>
                 </div>
             </div>
-            <div class="hero-slider__slide" style="background-image: url(images/apples.jpg)">
+            <div class="hero-slider__slide" style="background-image: url(<?php echo get_theme_file_uri('images/apples.jpg'); ?>)">
                 <div class="hero-slider__interior container">
                     <div class="hero-slider__overlay">
                         <h2 class="headline headline--medium t-center">An Apple a Day</h2>
@@ -90,7 +90,7 @@
                     </div>
                 </div>
             </div>
-            <div class="hero-slider__slide" style="background-image: url(images/bread.jpg)">
+            <div class="hero-slider__slide" style="background-image: url(<?php echo get_theme_file_uri('images/bread.jpg'); ?>)">
                 <div class="hero-slider__interior container">
                     <div class="hero-slider__overlay">
                         <h2 class="headline headline--medium t-center">Free Food</h2>
